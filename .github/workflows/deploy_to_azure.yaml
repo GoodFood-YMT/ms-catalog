@@ -48,5 +48,5 @@ jobs:
         terraform_wrapper: false
 
     - name: Terraform init
-      run: Terraform init -backend-config="env/dev.backend.tfvars"
+      run: terraform init -backend-config="env/dev.backend.tfvars"
       shell: pwsh
