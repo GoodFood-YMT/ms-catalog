@@ -69,23 +69,23 @@ resource "azurerm_container_group" "webapp" {
   name                = "aci-${var.project_name}${var.environment_suffix}"
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = var.location
-  ip_address_type = "Public"
-  dns_name_label = "aci-pgadmin-${var.project_name}${var.environment_suffix}"
-  os_type = "Linux"
+  ip_address_type     = "Public"
+  dns_name_label      = "aci-pgadmin-${var.project_name}${var.environment_suffix}"
+  os_type             = "Linux"
 
   container {
-    name = "webapp"
-    image = "YasinKara/ms-catalog:latest"
-    cpu = "0.5"
+    name   = "webapp"
+    image  = "YasinKara/ms-catalog:latest"
+    cpu    = "0.5"
     memory = "1.5"
 
     ports {
-      port = 34856
+      port     = 34856
       protocol = "TCP"
     }
 
     ports {
-      port = 44351
+      port     = 44351
       protocol = "TCP"
     }
 
