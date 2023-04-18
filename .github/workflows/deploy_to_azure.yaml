@@ -2,7 +2,7 @@ name: 'Deploy'
 
 defaults:
   run:
-    working-directory: ".\terraform"
+    working-directory: "terraform"
 
 on:
   workflow_dispatch:
@@ -42,7 +42,7 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform init -backend-config-".\env\dev.backend.tfvars"
+      run: terraform init -backend-config=".\env\dev.backend.tfvars"
 
     # Checks that all Terraform configuration files adhere to a canonical format
     # Will fail the build if not
