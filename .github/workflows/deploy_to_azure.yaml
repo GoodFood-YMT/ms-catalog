@@ -42,7 +42,7 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform init -backend-config=".\env\dev.backend.tfvars"
+      run: terraform init -backend-config="env/dev.backend.tfvars"
 
     # Checks that all Terraform configuration files adhere to a canonical format
     # Will fail the build if not
@@ -55,7 +55,7 @@ jobs:
       id: tf-plan
       run: |
         export exitcode=0
-        terraform plan -detailed-exitcode -no-color -out tfplan -var-file=".\env\dev.tfvars" || export exitcode=$?
+        terraform plan -detailed-exitcode -no-color -out tfplan -var-file="env/dev.tfvars" || export exitcode=$?
 
         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
         
