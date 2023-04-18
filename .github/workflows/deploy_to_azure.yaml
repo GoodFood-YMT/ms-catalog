@@ -3,6 +3,10 @@ name: 'Terraform Plan/Apply'
 on:
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: "terraform"
+  
 #Special permissions required for OIDC authentication
 permissions:
   id-token: write
