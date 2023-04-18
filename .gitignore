@@ -1,2 +1,3 @@
 ./.vs
 ./ms-catalog/bin
+./terraform/.terraform
