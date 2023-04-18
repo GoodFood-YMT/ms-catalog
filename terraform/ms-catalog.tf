@@ -66,9 +66,9 @@ resource "azurerm_postgresql_firewall_rule" "pgsql" {
 # }
 
 resource "azurerm_container_group" "webapp" {
-  name                = "web-catalog-${var.project_name}${var.environment_suffix}"
+  name                = "aci-${var.project_name}${var.environment_suffix}"
   resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
+  location            = var.location
   ip_address_type = "Public"
   dns_name_label = "aci-pgadmin-${var.project_name}${var.environment_suffix}"
   os_type = "Linux"
