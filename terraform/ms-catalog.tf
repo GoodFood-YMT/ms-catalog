@@ -51,7 +51,12 @@ resource "azurerm_container_group" "webapp" {
     memory = "1.5"
 
     ports {
-      port     = 5000
+      port     = 80
+      protocol = "TCP"
+    }
+
+    ports {
+      port     = 443
       protocol = "TCP"
     }
 
