@@ -7949,8 +7949,8 @@
     },
     "MsCatalog/1.0.0": {
       "type": "project",
-      "path": "../ms-catalog/MsCatalog.csproj",
-      "msbuildProject": "../ms-catalog/MsCatalog.csproj"
+      "path": "../MsCatalog/MsCatalog.csproj",
+      "msbuildProject": "../MsCatalog/MsCatalog.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -7990,8 +7990,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\ms-catalog\\MsCatalog.csproj": {
-              "projectPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\ms-catalog\\MsCatalog.csproj"
+            "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog\\MsCatalog.csproj": {
+              "projectPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog\\MsCatalog.csproj"
             }
           }
         }

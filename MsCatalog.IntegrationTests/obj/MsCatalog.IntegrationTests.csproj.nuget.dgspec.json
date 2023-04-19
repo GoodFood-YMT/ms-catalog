@@ -4,14 +4,113 @@
     "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\MsCatalog.IntegrationTests.csproj": {}
   },
   "projects": {
-    "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\ms-catalog\\MsCatalog.csproj": {
+    "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\MsCatalog.IntegrationTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\ms-catalog\\MsCatalog.csproj",
-        "projectName": "MsCatalog",
-        "projectPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\ms-catalog\\MsCatalog.csproj",
+        "projectUniqueName": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\MsCatalog.IntegrationTests.csproj",
+        "projectName": "MsCatalog.IntegrationTests",
+        "projectPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\MsCatalog.IntegrationTests.csproj",
         "packagesPath": "C:\\Users\\tbrul\\.nuget\\packages\\",
-        "outputPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\ms-catalog\\obj\\",
+        "outputPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\tbrul\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog\\MsCatalog.csproj": {
+                "projectPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog\\MsCatalog.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.3.2, )"
+            },
+            "coverlet.collector": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.2, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.4.2, )"
+            },
+            "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.4.5, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.16, 6.0.16]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.16, 6.0.16]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.16, 6.0.16]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.105\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog\\MsCatalog.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog\\MsCatalog.csproj",
+        "projectName": "MsCatalog",
+        "projectPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog\\MsCatalog.csproj",
+        "packagesPath": "C:\\Users\\tbrul\\.nuget\\packages\\",
+        "outputPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\tbrul\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -100,105 +199,6 @@
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
             },
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.105\\RuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\MsCatalog.IntegrationTests.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\MsCatalog.IntegrationTests.csproj",
-        "projectName": "MsCatalog.IntegrationTests",
-        "projectPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\MsCatalog.IntegrationTests.csproj",
-        "packagesPath": "C:\\Users\\tbrul\\.nuget\\packages\\",
-        "outputPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\MsCatalog.IntegrationTests\\obj\\",
-        "projectStyle": "PackageReference",
-        "configFilePaths": [
-          "C:\\Users\\tbrul\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net6.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net6.0": {
-            "targetAlias": "net6.0",
-            "projectReferences": {
-              "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\ms-catalog\\MsCatalog.csproj": {
-                "projectPath": "D:\\CESI\\MAALSI\\CUBES\\Projet\\ms-catalog\\ms-catalog\\MsCatalog.csproj"
-              }
-            }
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        }
-      },
-      "frameworks": {
-        "net6.0": {
-          "targetAlias": "net6.0",
-          "dependencies": {
-            "Microsoft.EntityFrameworkCore.InMemory": {
-              "target": "Package",
-              "version": "[7.0.5, )"
-            },
-            "Microsoft.NET.Test.Sdk": {
-              "target": "Package",
-              "version": "[17.3.2, )"
-            },
-            "coverlet.collector": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[3.1.2, )"
-            },
-            "xunit": {
-              "target": "Package",
-              "version": "[2.4.2, )"
-            },
-            "xunit.runner.visualstudio": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[2.4.5, )"
-            }
-          },
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[6.0.16, 6.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[6.0.16, 6.0.16]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[6.0.16, 6.0.16]"
-            }
-          ],
-          "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }

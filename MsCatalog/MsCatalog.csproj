@@ -20,7 +20,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="ms_catalog" />
+		<InternalsVisibleTo Include="MsCatalog" />
 	</ItemGroup>
 
 </Project>
