@@ -46,17 +46,12 @@ resource "azurerm_container_group" "webapp" {
 
   container {
     name   = "webapp"
-    image  = "hub.docker.com/repository/docker/yasinkara/ms-catalog/"
+    image  = "registry.hub.docker.com/yasinkara/ms-catalog:latest"
     cpu    = "0.5"
     memory = "1.5"
 
     ports {
-      port     = 34856
-      protocol = "TCP"
-    }
-
-    ports {
-      port     = 44351
+      port     = 5000
       protocol = "TCP"
     }
 

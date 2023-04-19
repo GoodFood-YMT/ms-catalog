@@ -1,3 +1,4 @@
 ./.vs
 ./ms-catalog/bin
 ./terraform/.terraform
+/terraform/.terraform/providers/registry.terraform.io/hashicorp/azurerm/3.48.0/windows_386/terraform-provider-azurerm_v3.48.0_x5.exe
