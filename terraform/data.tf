@@ -3,7 +3,7 @@ data "azurerm_resource_group" "rg" {
 }
 
 data "azurerm_key_vault" "kv" {
-  name                = "kv-${var.project_name}${var.environment_suffix}"
+  name                = "kv2-${var.project_name}${var.environment_suffix}"
   resource_group_name = data.azurerm_resource_group.rg.name
 }
 
