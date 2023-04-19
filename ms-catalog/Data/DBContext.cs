@@ -11,5 +11,14 @@ namespace ms_catalog.Data
         }
 
         public DbSet<Product> Product { get; set; }
-    }
+
+        public DbSet<Categorie> Categorie { get; set; }
+        public DbSet<Ingredient> Ingredient { get; set; }
+        public DbSet<ProductsIngredients> ProductsIngredients { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ProductsIngredients>().HasKey(pi => new { pi.IngredientId, pi.ProductId });
+        }
+    }   
 }

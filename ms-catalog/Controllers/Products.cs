@@ -123,7 +123,6 @@ namespace ms_catalog.Controllers
                 currentProduct.TaxPercent = product.TaxPercent;
                 currentProduct.SpecialPrice = product.SpecialPrice;
                 currentProduct.Visible = product.Visible;
-                currentProduct.Stock = product.Stock;
 
                 currentProduct.UpdatedAt = DateTime.Now;
 
