@@ -43,6 +43,7 @@ resource "azurerm_container_group" "webapp" {
   ip_address_type     = "Public"
   dns_name_label      = "aci-pgadmin-${var.project_name}${var.environment_suffix}"
   os_type             = "Linux"
+  exposed_port = []
 
   container {
     name   = "webapp"
@@ -51,12 +52,7 @@ resource "azurerm_container_group" "webapp" {
     memory = "1.5"
 
     ports {
-      port     = 80
-      protocol = "TCP"
-    }
-
-    ports {
-      port     = 443
+      port     = 5000
       protocol = "TCP"
     }
 
