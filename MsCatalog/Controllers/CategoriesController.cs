@@ -32,13 +32,14 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPost()]
-        public async Task<ActionResult<Category>> Create(Category category)
+        public async Task<ActionResult<Category>> Create([FromBody] CategoryRequestModel body)
         {
             try
             {
-                _context.Categories.Add(category);
+                Category newCategory = new Category(body.name);
+                _context.Categories.Add(newCategory);
                 await _context.SaveChangesAsync();
-                return Ok(category);
+                return Ok(newCategory);
             }
             catch
             {
@@ -60,15 +61,16 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Edit(int id, string name)
+        public ActionResult Edit(int id, [FromBody] CategoryRequestModel body)
         {
             try
             {
                 Category? currentCategory = _context.Categories.FirstOrDefault(c => c.Id == id);
                 if (currentCategory != null)
                 {
-                    currentCategory.Name = name;
+                    currentCategory.Name = body.name;
                     _context.Categories.Update(currentCategory);
+                    _context.SaveChanges();
                     return Ok(currentCategory);
                 }
                 else
@@ -81,5 +83,10 @@ namespace MsCatalog.Controllers
                 return BadRequest();
             }
         }
+    }
+
+    public class CategoryRequestModel
+    {
+        public string name { get; set; }
     }
 }

@@ -1,9 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Runtime.CompilerServices;
 
 namespace MsCatalog.Models
 {
     public class Product
     {
+        [BindNever]
         public int Id { get; set; }
         public string Label { get; set; } = "";
         public string Description { get; set; } = "";
