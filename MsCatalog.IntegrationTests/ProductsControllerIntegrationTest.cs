@@ -12,14 +12,14 @@ namespace MsCatalog.IntegrationTests
         [Fact]
         public async Task GetProducts_Success()
         {
-            var response = await _client.GetAsync("/api/products");
+            var response = await _client.GetAsync("/catalog/products");
             response.EnsureSuccessStatusCode();
         }
 
         [Fact]
         public async Task CreateProduct_Success()
         {
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "/api/products");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "/catalog/products");
 
             var formModel = new Dictionary<string, dynamic>
             {
@@ -49,7 +49,7 @@ namespace MsCatalog.IntegrationTests
         [Fact]
         public async Task CreateProduct_EnsureBadLabel()
         {
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "/api/products");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "/catalog/products");
 
             var formModel = new Dictionary<string, dynamic>
             {
