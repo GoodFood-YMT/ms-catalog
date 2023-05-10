@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MsCatalog.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20230419095008_init")]
-    partial class init
+    [Migration("20230510085505_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,6 +112,9 @@ namespace MsCatalog.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("integer")
                         .HasColumnOrder(0);
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
 
                     b.HasKey("IngredientId", "ProductId");
 

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-catalog-config
+  labels:
+    app: catalog
+data:
+  application_database: "SampleDbDriver"
+  DB_Port: "5432"
+  ConnectionStrings__DefaultConnection: "User ID=$(Postgres_Username); Password=$(Postgres_Password) Server=localhost; Port=$(DB_Port); Database=$(application_database); IntegratedSecurity=true; Pooling=true"

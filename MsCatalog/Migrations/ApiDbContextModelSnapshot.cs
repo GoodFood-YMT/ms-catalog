@@ -110,6 +110,9 @@ namespace MsCatalog.Migrations
                         .HasColumnType("integer")
                         .HasColumnOrder(0);
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
                     b.HasKey("IngredientId", "ProductId");
 
                     b.HasIndex("ProductId");

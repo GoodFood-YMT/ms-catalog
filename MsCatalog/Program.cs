@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MsCatalog.Data;
+using MsCatalog.Services.UriService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +9,22 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
-Console.WriteLine(conn);
-
 builder.Services.AddDbContext<ApiDbContext>(options => options.UseNpgsql(conn));
+
+builder.Services.AddStackExchangeRedisCache(redisOptions =>
+{
+    redisOptions.Configuration = "localhost:6379";
+
+});
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IUriService>(o =>
+{
+    var accessor = o.GetRequiredService<IHttpContextAccessor>();
+    var request = accessor.HttpContext.Request;
+    var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+    return new UriService(uri);
+});
 
 builder.Services.AddControllers();
 

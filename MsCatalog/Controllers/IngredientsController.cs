@@ -1,6 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using MsCatalog.Data;
+using MsCatalog.Helpers;
 using MsCatalog.Models;
+using MsCatalog.Models.Filters;
+using MsCatalog.Models.Wrappers;
+using MsCatalog.Services.UriService;
+using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
@@ -11,76 +18,121 @@ namespace MsCatalog.Controllers
 
         private readonly ApiDbContext _context;
         private readonly ILogger _logger;
+        private readonly IDistributedCache _redis;
+        private readonly IUriService _uriService;
 
-        public IngredientsController(ILogger<Ingredient> logger, ApiDbContext context)
+        public IngredientsController(ILogger<Ingredient> logger, ApiDbContext context, IDistributedCache redis, IUriService uriService)
         {
             _logger = logger;
             _context = context;
+            _redis = redis;
+            _uriService = uriService;
         }
 
         [HttpGet]
-        public ActionResult Index()
+        public async Task<IActionResult> Index([FromQuery] PaginationFilter filter)
         {
-            try
+            string key = "ingredients";
+            string? cachedIngredients = await _redis.GetStringAsync(key);
+            List<IngredientDto>? ingredients = new List<IngredientDto>();
+
+            PagedResponse<List<IngredientDto>> pagedReponse;
+            int totalRecords = 0;
+            string route = Request.Path.Value!;
+            PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            if (string.IsNullOrEmpty(cachedIngredients))
             {
-                return Ok(_context.Ingredients.ToList());
+                ingredients = await _context.Ingredients
+                    .Select(i => new IngredientDto { Id = i.Id, Name = i.Name })
+                    .ToListAsync();
+
+                totalRecords = ingredients.Count();
+
+                ingredients
+                    .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                    .Take(validFilter.PageSize)
+                    .ToList();
+
+                await _redis.SetStringAsync(key, ingredients.Count > 0 ? JsonConvert.SerializeObject(ingredients) : "");
+
+                pagedReponse = PaginationHelper.CreatePagedReponse(ingredients, validFilter, totalRecords, _uriService, route);
+                return Ok(pagedReponse);
             }
-            catch
-            {
-                return BadRequest();
-            }
-           
+            ingredients = JsonConvert.DeserializeObject<List<IngredientDto>>(cachedIngredients)
+                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                .Take(validFilter.PageSize)
+                .ToList();
+            totalRecords = ingredients!.Count();
+            pagedReponse = PaginationHelper.CreatePagedReponse(ingredients!, validFilter, totalRecords, _uriService, route);
+
+            return Ok(pagedReponse);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(Ingredient ingredient)
+        public async Task<IActionResult> Create(IngredientModel request)
         {
-            try
-            {
-                _context.Ingredients.Add(ingredient);
-                await _context.SaveChangesAsync();
-                return Ok(ingredient);
-            }
-            catch
-            {
-                return BadRequest();
-            }
+            Ingredient newIngredient = new(request.Name);
+            _context.Ingredients.Add(newIngredient);
+            await _context.SaveChangesAsync();
+
+            IngredientDto ingredient = new IngredientDto { Id = newIngredient.Id, Name = request.Name };
+            await _redis.SetStringAsync("ingredients", "");
+
+            return Ok(ingredient);
         }
 
         [HttpGet("{id}")]
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            try
-            {
-                return Ok(_context.Ingredients.Where(i => i.Id == id).FirstOrDefault());
-            }
-            catch
-            {
-                return BadRequest();
-            }       
-        }
+            string key = $"ingredient-{id}";
+            string? cachedIngredient = await _redis.GetStringAsync(key);
+            IngredientDto? ingredient = null;
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Edit(int id, string name)
-        {
-            try
+            if (string.IsNullOrEmpty(cachedIngredient))
             {
-                Ingredient? currentIgredient = _context.Ingredients.FirstOrDefault(i => i.Id == id);
+                ingredient = await _context.Ingredients
+                    .Where(i => i.Id == id)
+                    .Select(i => new IngredientDto { Id = i.Id, Name = i.Name })
+                    .FirstOrDefaultAsync();
 
-                if(currentIgredient == null)
+                if (ingredient == null)
                 {
                     return NotFound();
                 }
 
-                currentIgredient.Name = name;
-                await _context.SaveChangesAsync();
+                await _redis.SetStringAsync(key, JsonConvert.SerializeObject(ingredient));
+                return Ok(ingredient);
+            }
 
-                return Ok(currentIgredient);
-            }
-            catch
+            ingredient = JsonConvert.DeserializeObject<IngredientDto>(cachedIngredient);
+            return Ok(ingredient);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Edit(int id, [FromBody] IngredientModel request)
+        {
+            Ingredient? currentIgredient = await _context.Ingredients.Where(i => i.Id == id).FirstOrDefaultAsync();
+
+            if (currentIgredient == null)
             {
-                return View();
+                return NotFound();
             }
+
+            currentIgredient.Name = request.Name;
+            await _context.SaveChangesAsync();
+
+            IngredientDto ingredientDto = new() { Id = currentIgredient.Id, Name = currentIgredient.Name };
+
+            await _redis.SetStringAsync("ingredients", "");
+            await _redis.SetStringAsync($"ingredient-{id}", "");
+
+            return Ok(ingredientDto);
         }
     }
+
+    public class IngredientModel {
+        public string Name { get; set; } = "";
+    }
+
 }

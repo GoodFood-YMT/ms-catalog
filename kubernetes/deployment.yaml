@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-catalog
+  labels:
+    app: ms-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-catalog
+  template:
+    metadata:
+      labels:
+        app: ms-catalog
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: ms-catalog-config
+            - secretRef:
+                name: ms-catalog-secret
+          image: yasinkara/ms-catalog:latest
+          name: ms-catalog
+          ports:
+            - containerPort: 5001
+          resources: {}
+      restartPolicy: Always
