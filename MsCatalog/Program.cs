@@ -13,7 +13,7 @@ builder.Services.AddDbContext<ApiDbContext>(options => options.UseNpgsql(conn));
 
 builder.Services.AddStackExchangeRedisCache(redisOptions =>
 {
-    redisOptions.Configuration = "localhost:6379";
+    redisOptions.Configuration = builder.Configuration.GetConnectionString("RedisConfiguration");
 
 });
 

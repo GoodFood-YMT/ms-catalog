@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-catalog-db
+  labels:
+    app: ms-catalog-db
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+  selector:
+    app: ms-catalog-db

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-catalog-cache-config
+  labels:
+    app: ms-catalog-cache
+data: {}

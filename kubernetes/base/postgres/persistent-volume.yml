@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ms-catalog-db-persistent-volume
+  labels:
+    type: local
+    app: ms-catalog-db
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/run/desktop/mnt/host/c/users/karak/Documents/kubernetes/volumes/ms-catalog/db"

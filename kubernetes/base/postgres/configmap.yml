@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-catalog-db-config
+  labels:
+    app: ms-catalog-db
+data:
+  POSTGRES_DB: ms-catalog
+  POSTGRES_USER: api
+  POSTGRES_PASSWORD: postgres123

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-catalog-cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-catalog-cache
+  template:
+    metadata:
+      labels:
+        app: ms-catalog-cache
+    spec:
+      containers:
+        - name: ms-catalog-cache
+          image: redis
+          ports:
+            - containerPort: 6379
+          envFrom:
+            - configMapRef:
+                name: ms-catalog-cache-config
+          resources: {}

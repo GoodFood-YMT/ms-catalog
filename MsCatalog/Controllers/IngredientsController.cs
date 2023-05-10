@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
-    [Route("api/ingredients")]
+    [Route("catalog/ingredients")]
     [ApiController]
     public class IngredientsController : Controller
     {

@@ -12,7 +12,7 @@ using System.Text;
 
 namespace MsCatalog.Controllers
 {
-    [Route("api/categories")]
+    [Route("catalog/categories")]
     [ApiController]
     public class CategoriesController : Controller
     {

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-catalog-cache
+  labels:
+    app: ms-catalog-cache
+spec:
+  type: NodePort
+  ports:
+    - port: 6379
+  selector:
+    app: ms-catalog-cache

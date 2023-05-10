@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-catalog-config
+  labels:
+    app: ms-catalog
+data:
+  ConnectionStrings__DefaultConnection: "User ID=api; Password=postgres123; Server=ms-catalog-db; Port=5432; Database=ms-catalog; IntegratedSecurity=true; Pooling=true "
+  Redis__Configuration: "ms-catalog-redis:6379"

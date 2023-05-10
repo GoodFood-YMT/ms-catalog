@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-catalog-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-catalog-db
+  template:
+    metadata:
+      labels:
+        app: ms-catalog-db
+    spec:
+      containers:
+        - name: ms-catalog-db
+          image: postgres
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: ms-catalog-db-config
+          volumeMounts:
+            - mountPath: /var/lib/postgres/data
+              name: db-data
+          resources: {}
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: ms-catalog-db-volume-claim
