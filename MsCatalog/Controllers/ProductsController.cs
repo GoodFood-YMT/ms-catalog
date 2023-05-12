@@ -41,7 +41,7 @@ namespace MsCatalog.Controllers
 
             string key = "products";
             string? cachedProducts = await _redis.GetStringAsync(key);
-            if (cachedProducts == null)
+            if (string.IsNullOrEmpty(cachedProducts))
             {
                 products = await _context.Products
                     .Include(p => p.Category)
@@ -66,7 +66,7 @@ namespace MsCatalog.Controllers
                     .Take(validFilter.PageSize)
                     .ToList();
 
-                
+
                 pagedReponse = PaginationHelper.CreatePagedReponse(products, validFilter, totalRecords, _uriService, route);
 
                 await _redis.SetStringAsync(key, products.Count > 0 ? JsonConvert.SerializeObject(products) : "");
@@ -77,7 +77,7 @@ namespace MsCatalog.Controllers
             totalRecords = products!.Count();
             pagedReponse = PaginationHelper.CreatePagedReponse(products!, validFilter, totalRecords, _uriService, route);
 
-            return Ok(pagedReponse);
+            return Ok(products);
         }
 
         [HttpPost]

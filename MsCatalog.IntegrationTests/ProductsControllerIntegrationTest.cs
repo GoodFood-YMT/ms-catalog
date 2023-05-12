@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System.Text;
+using System.Web;
 
 namespace MsCatalog.IntegrationTests
 {
@@ -12,14 +13,25 @@ namespace MsCatalog.IntegrationTests
         [Fact]
         public async Task GetProducts_Success()
         {
-            var response = await _client.GetAsync("/catalog/products");
+            var endpoint = "catalog/products";
+
+            var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_client.BaseAddress, endpoint));
+
+            var uriBuilder = new UriBuilder(request.RequestUri);
+            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+            query["PageNumber"] = "1";
+            query["PageSize"] = "1";
+            uriBuilder.Query = query.ToString();
+            request.RequestUri = uriBuilder.Uri;
+
+            var response = await _client.SendAsync(request);
             response.EnsureSuccessStatusCode();
         }
 
         [Fact]
         public async Task CreateProduct_Success()
         {
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "/catalog/products");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "catalog/products");
 
             var formModel = new Dictionary<string, dynamic>
             {

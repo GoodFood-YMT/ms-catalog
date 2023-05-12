@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using MsCatalog.Data;
 using MsCatalog.Services.UriService;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +14,19 @@ var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApiDbContext>(options => options.UseNpgsql(conn));
 
-builder.Services.AddStackExchangeRedisCache(redisOptions =>
-{
-    redisOptions.Configuration = builder.Configuration.GetConnectionString("RedisConfiguration");
 
-});
+if (builder.Environment.EnvironmentName.Equals("IntegrationTest"))
+{
+    builder.Services.AddDistributedMemoryCache();
+}
+else
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = builder.Configuration.GetConnectionString("RedisConfiguration"); ;
+    });
+}
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IUriService>(o =>

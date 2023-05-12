@@ -10,6 +10,8 @@ namespace MsCatalog.IntegrationTests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseEnvironment("IntegrationTest");
+
             builder.ConfigureServices(services =>
             {
                 var descriptor = services.SingleOrDefault(
@@ -21,6 +23,7 @@ namespace MsCatalog.IntegrationTests
                 {
                     options.UseInMemoryDatabase("InMemoryCatalogTest");
                 });
+
                 var sp = services.BuildServiceProvider();
                 using (var scope = sp.CreateScope())
                 using (var appContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>())
@@ -35,6 +38,8 @@ namespace MsCatalog.IntegrationTests
                         throw;
                     }
                 }
+
+                services.AddDistributedMemoryCache();
             });
         }
     }
