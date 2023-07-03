@@ -23,6 +23,6 @@ spec:
           image: yasinkara/ms-catalog:latest
           name: ms-catalog
           ports:
-            - containerPort: 5000
+            - containerPort: 80
           resources: {}
       restartPolicy: Always
