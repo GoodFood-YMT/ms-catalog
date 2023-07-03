@@ -20,9 +20,9 @@ spec:
                 name: ms-catalog-config
             - secretRef:
                 name: ms-catalog-secret
-          image: yasinkara/ms-catalog:1.8
+          image: yasinkara/ms-catalog:1.9
           name: ms-catalog
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           resources: {}
       restartPolicy: Always
