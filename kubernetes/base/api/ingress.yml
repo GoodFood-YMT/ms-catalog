@@ -13,5 +13,5 @@ spec:
               service:
                 name: ms-catalog
                 port:
-                  number: 80
+                  number: 3000
             path: /

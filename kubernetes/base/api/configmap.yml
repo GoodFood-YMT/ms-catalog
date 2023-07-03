@@ -6,4 +6,4 @@ metadata:
     app: ms-catalog
 data:
   ConnectionStrings__DefaultConnection: "User ID=api; Password=postgres123; Server=ms-catalog-db; Port=5432; Database=ms-catalog; IntegratedSecurity=true; Pooling=true "
-  ConnectionStrings__RedisConfiguration: "ms-catalog-redis:6379"
+  ConnectionStrings__RedisConfiguration: "ms-catalog-cache:6379"
