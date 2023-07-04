@@ -31,7 +31,9 @@ namespace MsCatalog.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    RestaurantId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,9 +52,11 @@ namespace MsCatalog.Migrations
                     TaxPercent = table.Column<double>(type: "double precision", nullable: false),
                     SpecialPrice = table.Column<double>(type: "double precision", nullable: false),
                     Visible = table.Column<bool>(type: "boolean", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    CategoryId = table.Column<int>(type: "integer", nullable: true)
+                    CategoryId = table.Column<int>(type: "integer", nullable: true),
+                    RestaurantId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -8,11 +8,15 @@ namespace MsCatalog.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = "";
+        public int Quantity { get; set; }
+        public int RestaurantId { get; set; }
         public ICollection<ProductsIngredients>? ProductsIngredients { get; set; }
 
-        public Ingredient(string name)
+        public Ingredient(string name, int quantity, int restaurantId)
         {
             Name = name;
+            Quantity = quantity; 
+            RestaurantId = restaurantId;
         }
     }
 
@@ -20,5 +24,7 @@ namespace MsCatalog.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = "";
+        public int Quantity { get; set; }
+        public int RestaurantId { get; set; }
     }
 }

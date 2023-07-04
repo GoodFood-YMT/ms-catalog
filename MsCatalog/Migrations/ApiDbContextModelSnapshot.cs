@@ -51,6 +51,12 @@ namespace MsCatalog.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RestaurantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Ingredients");
@@ -80,6 +86,12 @@ namespace MsCatalog.Migrations
 
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RestaurantId")
+                        .HasColumnType("integer");
 
                     b.Property<double>("SpecialPrice")
                         .HasColumnType("double precision");

@@ -47,11 +47,12 @@ namespace MsCatalog.Controllers
             {
                 categories = JsonConvert.DeserializeObject<List<CategoryDto>>(cachedCategories);
 
+                totalRecords = categories!.Count();
+
                 response = categories!.Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                     .Take(validFilter.PageSize)
                     .ToList();
-
-                totalRecords = categories!.Count();
+                
                 pagedReponse = PaginationHelper.CreatePagedReponse(response, validFilter, totalRecords, _uriService, route);
 
                 return Ok(pagedReponse);

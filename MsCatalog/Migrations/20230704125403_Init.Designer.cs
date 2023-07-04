@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MsCatalog.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20230510085505_Init")]
+    [Migration("20230704125403_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -54,6 +54,12 @@ namespace MsCatalog.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RestaurantId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Ingredients");
@@ -83,6 +89,12 @@ namespace MsCatalog.Migrations
 
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RestaurantId")
+                        .HasColumnType("integer");
 
                     b.Property<double>("SpecialPrice")
                         .HasColumnType("double precision");

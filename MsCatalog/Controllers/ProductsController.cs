@@ -30,8 +30,14 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetProducts([FromQuery] PaginationFilter filter, [FromBody] GetProductsRequestModel request)
         {
+
+            if(request.RestaurantId == 0)
+            {
+                return BadRequest();
+            }
+
             List<ProductsDto> products = new();
             PagedResponse<List<ProductsDto>> pagedReponse;
             int totalRecords = 0;
@@ -39,7 +45,7 @@ namespace MsCatalog.Controllers
             string route = Request.Path.Value!;
             PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-            string key = "products";
+            string key = $"product:all";
             string? cachedProducts = await _redis.GetStringAsync(key);
             if (string.IsNullOrEmpty(cachedProducts))
             {
@@ -54,10 +60,16 @@ namespace MsCatalog.Controllers
                         p.TaxPercent,
                         p.SpecialPrice,
                         p.Visible,
+                        p.Quantity,
                         p.CreatedAt,
                         p.UpdatedAt,
-                        p.Category != null ? p.Category.Id : 0)
+                        p.Category != null ? p.Category.Id : 0,
+                        p.RestaurantId)
                     ).ToListAsync();
+
+                await _redis.SetStringAsync(key, products.Count > 0 ? JsonConvert.SerializeObject(products) : "");
+
+                products = products.Where(p => p.RestaurantId == request.RestaurantId && (request.CategoryId == null || p.CategoryId == request.CategoryId)).ToList();
 
                 totalRecords = products.Count();
 
@@ -69,33 +81,49 @@ namespace MsCatalog.Controllers
 
                 pagedReponse = PaginationHelper.CreatePagedReponse(products, validFilter, totalRecords, _uriService, route);
 
-                await _redis.SetStringAsync(key, products.Count > 0 ? JsonConvert.SerializeObject(products) : "");
-                return Ok(products);
+                
+                return Ok(pagedReponse);
             }
 
-            products = JsonConvert.DeserializeObject<List<ProductsDto>>(cachedProducts);
+            products = JsonConvert.DeserializeObject<List<ProductsDto>>(cachedProducts)
+                .Where(p => p.RestaurantId == request.RestaurantId && (request.CategoryId == null || p.CategoryId == request.CategoryId))
+                .ToList();
+
             totalRecords = products!.Count();
+
+            products = products
+                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                .Take(validFilter.PageSize)
+                .ToList();
+            
             pagedReponse = PaginationHelper.CreatePagedReponse(products!, validFilter, totalRecords, _uriService, route);
 
-            return Ok(products);
+            return Ok(pagedReponse);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateProduct(ProductRequestModel product)
         {
-            string key = "products";
-
             if (product == null)
             {
                 return BadRequest();
             }
 
-            Product newProduct = new(product.Label, product.Description, product.Price, product.TaxPercent, product.SpecialPrice, product.Visible);
+            Product newProduct = new(
+                product.Label, 
+                product.Description, 
+                product.Price, product.TaxPercent, 
+                product.SpecialPrice, product.Visible, 
+                product.Quantity, 
+                product.IdRestaurant
+            );
+
             if (product.Idcategory != null)
             {
-                Category? categ = _context.Categories.FirstOrDefault(c => c.Id == product.Idcategory);
+                Category? categ = await _context.Categories.Where(c => c.Id == product.Idcategory).FirstOrDefaultAsync();
                 newProduct.Category = categ;
             }
+
             _context.Products.Add(newProduct);
             await _context.SaveChangesAsync();
 
@@ -107,11 +135,13 @@ namespace MsCatalog.Controllers
                 newProduct.TaxPercent,
                 newProduct.SpecialPrice,
                 newProduct.Visible,
+                newProduct.Quantity,
                 newProduct.CreatedAt,
                 newProduct.UpdatedAt,
-                newProduct.Category != null ? newProduct.Category.Id : 0);
+                newProduct.Category != null ? newProduct.Category.Id : 0,
+                newProduct.RestaurantId);
 
-            await _redis.SetStringAsync(key, "");
+            await _redis.SetStringAsync("product:all", "");
 
             return Ok(productDto);
         }
@@ -119,8 +149,7 @@ namespace MsCatalog.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductById(int id)
         {
-            string key = $"product-{id}";
-            string? cachedProduct = await _redis.GetStringAsync(key);
+            string? cachedProduct = await _redis.GetStringAsync($"product:{id}");
             ProductsDto? product = null;
 
             if (cachedProduct == null)
@@ -136,9 +165,11 @@ namespace MsCatalog.Controllers
                         p.TaxPercent,
                         p.SpecialPrice,
                         p.Visible,
+                        p.Quantity,
                         p.CreatedAt,
                         p.UpdatedAt,
-                        p.Category != null ? p.Category.Id : 0)
+                        p.Category != null ? p.Category.Id : 0,
+                        p.RestaurantId)
                     ).FirstOrDefaultAsync();
 
                 if (product == null)
@@ -146,7 +177,7 @@ namespace MsCatalog.Controllers
                     return NotFound();
                 }
 
-                await _redis.SetStringAsync(key, JsonConvert.SerializeObject(product));
+                await _redis.SetStringAsync($"product:{id}", JsonConvert.SerializeObject(product));
                 return Ok(product);
             }
 
@@ -157,21 +188,25 @@ namespace MsCatalog.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, ProductRequestModel product)
         {
-            Product? currentProduct = _context.Products.ToList().Where(c => c.Id.Equals(id)).FirstOrDefault();
+            Product? currentProduct = await _context.Products.Where(c => c.Id == id).FirstOrDefaultAsync();
+
             if (currentProduct == null)
             {
                 return NotFound();
             }
+
             currentProduct.Label = product.Label;
             currentProduct.Description = product.Description;
             currentProduct.Price = product.Price;
             currentProduct.TaxPercent = product.TaxPercent;
             currentProduct.SpecialPrice = product.SpecialPrice;
             currentProduct.Visible = product.Visible;
+            currentProduct.Quantity = product.Quantity;
+            currentProduct.RestaurantId = product.IdRestaurant;
 
             if (product.Idcategory != null)
             {
-                Category? categ = _context.Categories.FirstOrDefault(c => c.Id == product.Idcategory);
+                Category? categ = await _context.Categories.Where(c => c.Id == product.Idcategory).FirstOrDefaultAsync();
                 currentProduct.Category = categ;
             }
 
@@ -187,13 +222,15 @@ namespace MsCatalog.Controllers
                 currentProduct.TaxPercent,
                 currentProduct.SpecialPrice,
                 currentProduct.Visible,
+                currentProduct.Quantity,
                 currentProduct.CreatedAt,
                 currentProduct.UpdatedAt,
-                currentProduct.Category != null ? currentProduct.Category.Id : 0);
+                currentProduct.Category != null ? currentProduct.Category.Id : 0,
+                currentProduct.RestaurantId);
 
 
-            await _redis.SetStringAsync("products", "");
-            await _redis.SetStringAsync($"product-{id}", "");
+            await _redis.SetStringAsync("product:all", "");
+            await _redis.SetStringAsync($"product:{id}", "");
 
             return Ok(productDto);
         }
@@ -206,6 +243,14 @@ namespace MsCatalog.Controllers
         public double TaxPercent { get; set; }
         public double SpecialPrice { get; set; }
         public bool Visible { get; set; }
+        public int Quantity { get; set; }
         public int? Idcategory { get; set; }
+        public int IdRestaurant { get; set; }
+    }
+
+    public class GetProductsRequestModel
+    {
+        public int RestaurantId { get; set; }
+        public int? CategoryId { get; set; }
     }
 }
