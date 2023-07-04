@@ -33,11 +33,6 @@ namespace MsCatalog.Controllers
         public async Task<IActionResult> GetProducts([FromQuery] PaginationFilter filter, [FromBody] GetProductsRequestModel request)
         {
 
-            if(request.RestaurantId == 0)
-            {
-                return BadRequest();
-            }
-
             List<ProductsDto> products = new();
             PagedResponse<List<ProductsDto>> pagedReponse;
             int totalRecords = 0;
