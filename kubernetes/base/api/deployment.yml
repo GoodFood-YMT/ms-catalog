@@ -20,7 +20,7 @@ spec:
                 name: ms-catalog-config
             - secretRef:
                 name: ms-catalog-secret
-          image: yasinkara/ms-catalog:1.9
+          image: yasinkara/ms-catalog:latest
           name: ms-catalog
           ports:
             - containerPort: 5000
