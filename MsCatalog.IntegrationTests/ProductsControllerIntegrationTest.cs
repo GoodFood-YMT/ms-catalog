@@ -40,7 +40,9 @@ namespace MsCatalog.IntegrationTests
                 { "price", 20 },
                 { "taxPercent", 0 },
                 { "specialPrice", 20 },
-                { "visible", true }
+                { "visible", true },
+                { "quantity", 20 },
+                { "restaurantId", 1 }
             };
 
 
@@ -70,7 +72,9 @@ namespace MsCatalog.IntegrationTests
                 { "price", 20 },
                 { "taxPercent", 0 },
                 { "specialPrice", 20 },
-                { "visible", true }
+                { "visible", true },
+                { "quantity", 20 },
+                { "restaurantId", 1 }
             };
 
 
