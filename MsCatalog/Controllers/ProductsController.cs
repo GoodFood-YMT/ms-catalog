@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
-    [Route("catalog/products")]
+    [Route("catalog")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -29,8 +29,8 @@ namespace MsCatalog.Controllers
             _uriService = uriService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetProducts([FromQuery] PaginationFilter filter, [FromBody] GetProductsRequestModel request)
+        [HttpGet("{RestaurantId}/products")]
+        public async Task<IActionResult> GetProducts(int RestaurantId, [FromQuery] PaginationFilter filter, int? CategoryId)
         {
 
             List<ProductsDto> products = new();
@@ -64,7 +64,7 @@ namespace MsCatalog.Controllers
 
                 await _redis.SetStringAsync(key, products.Count > 0 ? JsonConvert.SerializeObject(products) : "");
 
-                products = products.Where(p => p.RestaurantId == request.RestaurantId && (request.CategoryId == null || p.CategoryId == request.CategoryId)).ToList();
+                products = products.Where(p => p.RestaurantId == RestaurantId && (CategoryId == null || p.CategoryId == CategoryId)).ToList();
 
                 totalRecords = products.Count();
 
@@ -81,7 +81,7 @@ namespace MsCatalog.Controllers
             }
 
             products = JsonConvert.DeserializeObject<List<ProductsDto>>(cachedProducts)
-                .Where(p => p.RestaurantId == request.RestaurantId && (request.CategoryId == null || p.CategoryId == request.CategoryId))
+                .Where(p => p.RestaurantId == RestaurantId && (CategoryId == null || p.CategoryId == CategoryId))
                 .ToList();
 
             totalRecords = products!.Count();
@@ -96,7 +96,7 @@ namespace MsCatalog.Controllers
             return Ok(pagedReponse);
         }
 
-        [HttpPost]
+        [HttpPost("products")]
         public async Task<IActionResult> CreateProduct(ProductRequestModel product)
         {
             if (product == null)
@@ -141,7 +141,7 @@ namespace MsCatalog.Controllers
             return Ok(productDto);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("products/{id}")]
         public async Task<IActionResult> GetProductById(int id)
         {
             string? cachedProduct = await _redis.GetStringAsync($"product:{id}");
@@ -180,7 +180,7 @@ namespace MsCatalog.Controllers
             return Ok(product);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("products/{id}")]
         public async Task<IActionResult> UpdateProduct(int id, ProductRequestModel product)
         {
             Product? currentProduct = await _context.Products.Where(c => c.Id == id).FirstOrDefaultAsync();

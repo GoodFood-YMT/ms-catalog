@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
-    [Route("catalog/ingredients")]
+    [Route("catalog")]
     [ApiController]
     public class IngredientsController : Controller
     {
@@ -29,8 +29,8 @@ namespace MsCatalog.Controllers
             _uriService = uriService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetIngredients([FromQuery] PaginationFilter filter, [FromBody] GetIngredientsRequestModel request)
+        [HttpGet("{RestaurantId}/ingredients")]
+        public async Task<IActionResult> GetIngredients(int RestaurantId, [FromQuery] PaginationFilter filter)
         {
             string? cachedIngredients = await _redis.GetStringAsync("ingredient:all");
             List<IngredientDto>? ingredients = new List<IngredientDto>();
@@ -52,7 +52,7 @@ namespace MsCatalog.Controllers
 
                 await _redis.SetStringAsync($"ingredient:all", ingredients.Count > 0 ? JsonConvert.SerializeObject(ingredients) : "");
 
-                ingredients = ingredients.Where(i => i.RestaurantId == request.RestaurantId).ToList();
+                ingredients = ingredients.Where(i => i.RestaurantId == RestaurantId).ToList();
 
                 totalRecords = ingredients.Count();
 
@@ -65,7 +65,7 @@ namespace MsCatalog.Controllers
                 return Ok(pagedReponse);
             }
             ingredients = JsonConvert.DeserializeObject<List<IngredientDto>>(cachedIngredients)
-                .Where(i => i.RestaurantId == request.RestaurantId)
+                .Where(i => i.RestaurantId == RestaurantId)
                 .ToList();
 
             totalRecords = ingredients!.Count();
@@ -80,7 +80,7 @@ namespace MsCatalog.Controllers
             return Ok(pagedReponse);
         }
 
-        [HttpPost]
+        [HttpPost("ingredients")]
         public async Task<IActionResult> CreateIngredient(IngredientModel request)
         {
             Ingredient newIngredient = new(request.Name, request.Quantity, request.RestaurantId);
@@ -99,7 +99,7 @@ namespace MsCatalog.Controllers
             return Ok(ingredient);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("ingredients/{id}")]
         public async Task<IActionResult> GetIngredientById(int id)
         {
             string? cachedIngredient = await _redis.GetStringAsync($"ingredient:{id}");
@@ -129,7 +129,7 @@ namespace MsCatalog.Controllers
             return Ok(ingredient);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("ingredients/{id}")]
         public async Task<IActionResult> UpdateIngredient(int id, [FromBody] IngredientModel request)
         {
             Ingredient? currentIgredient = await _context.Ingredients.Where(i => i.Id == id).FirstOrDefaultAsync();
@@ -156,11 +156,6 @@ namespace MsCatalog.Controllers
     public class IngredientModel {
         public string Name { get; set; } = "";
         public int Quantity { get; set; }
-        public int RestaurantId { get; set; }
-    }
-
-    public class GetIngredientsRequestModel
-    {
         public int RestaurantId { get; set; }
     }
 
