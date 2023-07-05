@@ -32,7 +32,7 @@ namespace MsCatalog.IntegrationTests
         [Fact]
         public async Task CreateProduct_Success()
         {
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "catalog/products");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "catalog/1/products");
 
             var formModel = new Dictionary<string, dynamic>
             {
@@ -64,7 +64,7 @@ namespace MsCatalog.IntegrationTests
         [Fact]
         public async Task CreateProduct_EnsureBadLabel()
         {
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "/catalog/products");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "/catalog/1/products");
 
             var formModel = new Dictionary<string, dynamic>
             {
