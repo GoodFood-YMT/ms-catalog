@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
-    [Route("catalog")]
+    [Route("catalog/{RestaurantId}/products")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -29,7 +29,7 @@ namespace MsCatalog.Controllers
             _uriService = uriService;
         }
 
-        [HttpGet("{RestaurantId}/products")]
+        [HttpGet]
         public async Task<IActionResult> GetProducts(int RestaurantId, [FromQuery] PaginationFilter filter, int? CategoryId)
         {
 
@@ -96,7 +96,7 @@ namespace MsCatalog.Controllers
             return Ok(pagedReponse);
         }
 
-        [HttpPost("products")]
+        [HttpPost]
         public async Task<IActionResult> CreateProduct(ProductRequestModel product)
         {
             if (product == null)
@@ -141,8 +141,8 @@ namespace MsCatalog.Controllers
             return Ok(productDto);
         }
 
-        [HttpGet("products/{id}")]
-        public async Task<IActionResult> GetProductById(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProductById(int RestaurantId, int id)
         {
             string? cachedProduct = await _redis.GetStringAsync($"product:{id}");
             ProductsDto? product = null;
@@ -151,7 +151,7 @@ namespace MsCatalog.Controllers
             {
                 product = await _context.Products
                     .Include(p => p.Category)
-                    .Where(p => p.Id == id)
+                    .Where(p => p.Id == id && p.RestaurantId == RestaurantId)
                     .Select(p => new ProductsDto(
                         p.Id,
                         p.Label,
@@ -180,10 +180,10 @@ namespace MsCatalog.Controllers
             return Ok(product);
         }
 
-        [HttpPut("products/{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, ProductRequestModel product)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct(int RestaurantId, int id, ProductRequestModel product)
         {
-            Product? currentProduct = await _context.Products.Where(c => c.Id == id).FirstOrDefaultAsync();
+            Product? currentProduct = await _context.Products.Where(c => c.Id == id && c.RestaurantId == RestaurantId).FirstOrDefaultAsync();
 
             if (currentProduct == null)
             {

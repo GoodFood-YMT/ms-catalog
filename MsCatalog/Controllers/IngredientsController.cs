@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
-    [Route("catalog")]
+    [Route("catalog/{RestaurantId}/ingredients")]
     [ApiController]
     public class IngredientsController : Controller
     {
@@ -29,7 +29,7 @@ namespace MsCatalog.Controllers
             _uriService = uriService;
         }
 
-        [HttpGet("{RestaurantId}/ingredients")]
+        [HttpGet]
         public async Task<IActionResult> GetIngredients(int RestaurantId, [FromQuery] PaginationFilter filter)
         {
             string? cachedIngredients = await _redis.GetStringAsync("ingredient:all");
@@ -80,8 +80,8 @@ namespace MsCatalog.Controllers
             return Ok(pagedReponse);
         }
 
-        [HttpPost("ingredients")]
-        public async Task<IActionResult> CreateIngredient(IngredientModel request)
+        [HttpPost]
+        public async Task<IActionResult> CreateIngredient(int RestaurantId, IngredientModel request)
         {
             Ingredient newIngredient = new(request.Name, request.Quantity, request.RestaurantId);
             _context.Ingredients.Add(newIngredient);
@@ -99,8 +99,8 @@ namespace MsCatalog.Controllers
             return Ok(ingredient);
         }
 
-        [HttpGet("ingredients/{id}")]
-        public async Task<IActionResult> GetIngredientById(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetIngredientById(int RestaurantId, int id)
         {
             string? cachedIngredient = await _redis.GetStringAsync($"ingredient:{id}");
             IngredientDto? ingredient = null;
@@ -108,7 +108,7 @@ namespace MsCatalog.Controllers
             if (string.IsNullOrEmpty(cachedIngredient))
             {
                 ingredient = await _context.Ingredients
-                    .Where(i => i.Id == id)
+                    .Where(i => i.Id == id && i.RestaurantId == RestaurantId)
                     .Select(i => new IngredientDto { 
                         Id = i.Id, 
                         Name = i.Name, 
@@ -129,10 +129,10 @@ namespace MsCatalog.Controllers
             return Ok(ingredient);
         }
 
-        [HttpPut("ingredients/{id}")]
-        public async Task<IActionResult> UpdateIngredient(int id, [FromBody] IngredientModel request)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateIngredient(int RestaurantId, int id, [FromBody] IngredientModel request)
         {
-            Ingredient? currentIgredient = await _context.Ingredients.Where(i => i.Id == id).FirstOrDefaultAsync();
+            Ingredient? currentIgredient = await _context.Ingredients.Where(i => i.Id == id && i.RestaurantId == RestaurantId).FirstOrDefaultAsync();
 
             if (currentIgredient == null)
             {
