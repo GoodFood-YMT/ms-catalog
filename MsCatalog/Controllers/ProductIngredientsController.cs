@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
-    [Route("catalog/product/{productId}/ingredient")]
+    [Route("catalog/products/{productId}/ingredients")]
     [ApiController]
     public class ProductIngredientsController : Controller
     {
@@ -31,9 +31,9 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetIngredientsByProduct(int productId, [FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetIngredientsByProduct(string productId, [FromQuery] PaginationFilter filter)
         {
-            string? cachedProductIngredients = await _redis.GetStringAsync($"product:{productId}:ingredient:all");
+            string cachedProductIngredients = await _redis.GetStringAsync($"product:{productId}:ingredient:all");
             List<ProductsIngredientsDto>? productIngredients = new List<ProductsIngredientsDto>();
 
             PagedResponse<List<ProductsIngredientsDto>> pagedReponse;
@@ -44,9 +44,12 @@ namespace MsCatalog.Controllers
             if (string.IsNullOrEmpty(cachedProductIngredients))
             {
                 productIngredients = await _context.ProductsIngredients
-                    .Where((p) => p.ProductId == productId)
-                    .Select(p => new ProductsIngredientsDto { ProductId = p.ProductId, IngredientId = p.IngredientId, Quantity = p.Quantity })
-                    .ToListAsync();
+                    .Where(p => p.ProductId == productId)
+                    .Select(p => new ProductsIngredientsDto { 
+                        ProductId = p.ProductId, 
+                        IngredientId = p.IngredientId, 
+                        Quantity = p.Quantity 
+                    }).ToListAsync();
 
                 await _redis.SetStringAsync($"product:{productId}:ingredient:all", JsonConvert.SerializeObject(productIngredients));
 
@@ -78,7 +81,7 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet("{ingredientId}")]
-        public async Task<IActionResult> GetIngredientByProduct(int productId, int ingredientId)
+        public async Task<IActionResult> GetIngredientByProduct(string productId, string ingredientId)
         {
             string key = $"product:{productId}:ingredient:{ingredientId}";
             string? cachedProductIngredient = await _redis.GetStringAsync(key);
@@ -100,10 +103,10 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPost("{ingredientId}")]
-        public async Task<IActionResult> AddIngredientByProduct(int productId, int ingredientId, [FromBody] QuantityRequiredModel request)
+        public async Task<IActionResult> AddIngredientByProduct(string productId, string ingredientId, [FromBody] QuantityRequiredModel request)
         {
-            Product? currentProduct = await _context.Products.FindAsync(productId);
-            Ingredient? currentIngredient = await _context.Ingredients.FindAsync(ingredientId);
+            Product? currentProduct = await _context.Products.Where(p => p.Id.ToString() == productId).FirstOrDefaultAsync();
+            Ingredient? currentIngredient = await _context.Ingredients.Where(i => i.Id.ToString() == ingredientId).FirstOrDefaultAsync();
             if (currentProduct != null &&  currentIngredient != null)
             {
 
@@ -130,7 +133,7 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPut("{ingredientId}")]
-        public async Task<IActionResult> UpdateIngredientProduct(int productId, int ingredientId, [FromBody] QuantityRequiredModel request)
+        public async Task<IActionResult> UpdateIngredientProduct(string productId, string ingredientId, [FromBody] QuantityRequiredModel request)
         {
             
             if(await _context.ProductsIngredients.AnyAsync((p) => p.ProductId == productId && p.IngredientId == ingredientId))
@@ -147,11 +150,11 @@ namespace MsCatalog.Controllers
                 return Ok(result);
             }
 
-            return BadRequest();
+            return NotFound();
         }
 
         [HttpDelete("{ingredientId}")]
-        public async Task<IActionResult> Delete(int productId, int ingredientId)
+        public async Task<IActionResult> Delete(string productId, string ingredientId)
         {
             if (await _context.ProductsIngredients.AnyAsync((p) => p.ProductId == productId && p.IngredientId == ingredientId))
             {

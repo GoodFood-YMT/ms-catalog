@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,8 +15,7 @@ namespace MsCatalog.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -29,11 +27,10 @@ namespace MsCatalog.Migrations
                 name: "Ingredients",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
-                    RestaurantId = table.Column<int>(type: "integer", nullable: false)
+                    RestaurantId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,8 +41,7 @@ namespace MsCatalog.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Label = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<double>(type: "double precision", nullable: false),
@@ -55,8 +51,8 @@ namespace MsCatalog.Migrations
                     Quantity = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    CategoryId = table.Column<int>(type: "integer", nullable: true),
-                    RestaurantId = table.Column<int>(type: "integer", nullable: false)
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: true),
+                    RestaurantId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,22 +68,24 @@ namespace MsCatalog.Migrations
                 name: "ProductsIngredients",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "integer", nullable: false),
-                    IngredientId = table.Column<int>(type: "integer", nullable: false),
+                    ProductId = table.Column<string>(type: "text", nullable: false),
+                    IngredientId = table.Column<string>(type: "text", nullable: false),
+                    ProductId1 = table.Column<Guid>(type: "uuid", nullable: false),
+                    IngredientId1 = table.Column<Guid>(type: "uuid", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductsIngredients", x => new { x.IngredientId, x.ProductId });
                     table.ForeignKey(
-                        name: "FK_ProductsIngredients_Ingredients_IngredientId",
-                        column: x => x.IngredientId,
+                        name: "FK_ProductsIngredients_Ingredients_IngredientId1",
+                        column: x => x.IngredientId1,
                         principalTable: "Ingredients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductsIngredients_Products_ProductId",
-                        column: x => x.ProductId,
+                        name: "FK_ProductsIngredients_Products_ProductId1",
+                        column: x => x.ProductId1,
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -99,9 +97,14 @@ namespace MsCatalog.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductsIngredients_ProductId",
+                name: "IX_ProductsIngredients_IngredientId1",
                 table: "ProductsIngredients",
-                column: "ProductId");
+                column: "IngredientId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductsIngredients_ProductId1",
+                table: "ProductsIngredients",
+                column: "ProductId1");
         }
 
         /// <inheritdoc />

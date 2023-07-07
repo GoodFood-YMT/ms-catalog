@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -6,13 +8,15 @@ namespace MsCatalog.Models
 {
     public class Ingredient
     {
-        public int Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
+        public Guid Id { get; set; }
         public string Name { get; set; } = "";
         public int Quantity { get; set; }
-        public int RestaurantId { get; set; }
+        public string RestaurantId { get; set; }
         public ICollection<ProductsIngredients>? ProductsIngredients { get; set; }
 
-        public Ingredient(string name, int quantity, int restaurantId)
+        public Ingredient(string name, int quantity, string restaurantId)
         {
             Name = name;
             Quantity = quantity; 
@@ -22,9 +26,9 @@ namespace MsCatalog.Models
 
     public class IngredientDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; } = "";
         public int Quantity { get; set; }
-        public int RestaurantId { get; set; }
+        public string RestaurantId { get; set; }
     }
 }

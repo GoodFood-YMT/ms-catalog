@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace MsCatalog.Models
 {
     public class Category
     {
-        public int Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
+        public Guid Id { get; set; }
         public string Name { get; set; } = "";
         public ICollection<Product>? Products { get; set; }
 
@@ -17,7 +21,7 @@ namespace MsCatalog.Models
 
     public class CategoryDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; } = "";
     }
 }

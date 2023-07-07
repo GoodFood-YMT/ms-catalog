@@ -58,7 +58,7 @@ namespace MsCatalog.Controllers
                 return Ok(pagedReponse);
             }
 
-            categories = await _context.Categories.Select(c => new CategoryDto { Id = c.Id, Name = c.Name}).ToListAsync();
+            categories = await _context.Categories.Select(c => new CategoryDto { Id = c.Id.ToString(), Name = c.Name}).ToListAsync();
 
             response = categories
                 .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
@@ -77,18 +77,19 @@ namespace MsCatalog.Controllers
         [HttpPost()]
         public async Task<IActionResult> Create(CategoryRequestModel request)
         {
-            Category newCategory = new(request.Name);
+            //string test = Guid.NewGuid().ToString();
+            Category newCategory = new(request.Name);          
             _context.Categories.Add(newCategory);
             await _context.SaveChangesAsync();
 
-            CategoryDto newCategoryDto = new CategoryDto() { Id = newCategory.Id, Name = newCategory.Name };
+            CategoryDto newCategoryDto = new CategoryDto() { Id = newCategory.Id.ToString(), Name = newCategory.Name };
             await _redis.SetStringAsync("categories", "");
 
             return Ok(newCategoryDto);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(string id)
         {
             string key = $"category-{id}";
             string? cacheCategory = await _redis.GetStringAsync(key);
@@ -97,7 +98,7 @@ namespace MsCatalog.Controllers
 
             if (string.IsNullOrEmpty(cacheCategory))
             {
-                category = _context.Categories.Where(c => c.Id == id).Select(c => new CategoryDto { Id = c.Id, Name = c.Name }).FirstOrDefault();
+                category = _context.Categories.Where(c => c.Id.ToString() == id).Select(c => new CategoryDto { Id = c.Id.ToString(), Name = c.Name }).FirstOrDefault();
 
                 if (category == null)
                 {
@@ -115,16 +116,16 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Category>> Edit(int id, [FromBody] CategoryRequestModel request)
+        public async Task<ActionResult<Category>> Edit(string id, [FromBody] CategoryRequestModel request)
         {
-            Category? currentCategory = _context.Categories.Where(c => c.Id == id).FirstOrDefault();
+            Category? currentCategory = _context.Categories.Where(c => c.Id.ToString() == id).FirstOrDefault();
             if (currentCategory != null)
             {
                 currentCategory.Name = request.Name;
                 _context.Categories.Update(currentCategory);
                 await _context.SaveChangesAsync();
 
-                CategoryDto categoryDto = new CategoryDto() { Id = currentCategory.Id, Name = currentCategory.Name };
+                CategoryDto categoryDto = new CategoryDto() { Id = currentCategory.Id.ToString(), Name = currentCategory.Name };
 
                 await _redis.SetStringAsync($"category-{id}", "");
                 await _redis.SetStringAsync("categories", "");

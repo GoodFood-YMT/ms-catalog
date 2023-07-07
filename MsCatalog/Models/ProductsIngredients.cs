@@ -7,11 +7,11 @@ namespace MsCatalog.Models
     public class ProductsIngredients
     {
         [Key, Column(Order = 0)]
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
         public Product Product { get; set; }
 
         [Key, Column(Order = 1)]
-        public int IngredientId { get; set; }
+        public string IngredientId { get; set; }
         public Ingredient Ingredient { get; set; }
 
         public int Quantity { get; set; }
@@ -19,8 +19,8 @@ namespace MsCatalog.Models
 
     public class ProductsIngredientsDto
     {
-        public int ProductId { get; set; }
-        public int IngredientId { get; set; }
+        public string ProductId { get; set; }
+        public string IngredientId { get; set; }
         public int Quantity { get; set; }
     }
 

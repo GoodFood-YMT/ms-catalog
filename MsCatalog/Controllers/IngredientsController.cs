@@ -30,7 +30,7 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetIngredients(int RestaurantId, [FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetIngredients(string RestaurantId, [FromQuery] PaginationFilter filter)
         {
             string? cachedIngredients = await _redis.GetStringAsync("ingredient:all");
             List<IngredientDto>? ingredients = new List<IngredientDto>();
@@ -44,7 +44,7 @@ namespace MsCatalog.Controllers
             {
                 ingredients = await _context.Ingredients
                     .Select(i => new IngredientDto { 
-                        Id = i.Id,
+                        Id = i.Id.ToString(),
                         Name = i.Name, 
                         Quantity = i.Quantity, 
                         RestaurantId = i.RestaurantId 
@@ -81,14 +81,14 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateIngredient(int RestaurantId, IngredientModel request)
+        public async Task<IActionResult> CreateIngredient(string RestaurantId, IngredientModel request)
         {
-            Ingredient newIngredient = new(request.Name, request.Quantity, request.RestaurantId);
+            Ingredient newIngredient = new(request.Name, request.Quantity, RestaurantId);
             _context.Ingredients.Add(newIngredient);
             await _context.SaveChangesAsync();
 
             IngredientDto ingredient = new IngredientDto { 
-                Id = newIngredient.Id, 
+                Id = newIngredient.Id.ToString(), 
                 Name = newIngredient.Name, 
                 Quantity = newIngredient.Quantity, 
                 RestaurantId = newIngredient.RestaurantId 
@@ -100,7 +100,7 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetIngredientById(int RestaurantId, int id)
+        public async Task<IActionResult> GetIngredientById(string RestaurantId, string id)
         {
             string? cachedIngredient = await _redis.GetStringAsync($"ingredient:{id}");
             IngredientDto? ingredient = null;
@@ -108,9 +108,9 @@ namespace MsCatalog.Controllers
             if (string.IsNullOrEmpty(cachedIngredient))
             {
                 ingredient = await _context.Ingredients
-                    .Where(i => i.Id == id && i.RestaurantId == RestaurantId)
+                    .Where(i => i.Id.ToString() == id && i.RestaurantId == RestaurantId)
                     .Select(i => new IngredientDto { 
-                        Id = i.Id, 
+                        Id = i.Id.ToString(), 
                         Name = i.Name, 
                         Quantity = i.Quantity, 
                         RestaurantId = i.RestaurantId 
@@ -130,9 +130,9 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateIngredient(int RestaurantId, int id, [FromBody] IngredientModel request)
+        public async Task<IActionResult> UpdateIngredient(string RestaurantId, string id, [FromBody] IngredientModel request)
         {
-            Ingredient? currentIgredient = await _context.Ingredients.Where(i => i.Id == id && i.RestaurantId == RestaurantId).FirstOrDefaultAsync();
+            Ingredient? currentIgredient = await _context.Ingredients.Where(i => i.Id.ToString() == id && i.RestaurantId == RestaurantId).FirstOrDefaultAsync();
 
             if (currentIgredient == null)
             {
@@ -141,10 +141,10 @@ namespace MsCatalog.Controllers
 
             currentIgredient.Name = request.Name;
             currentIgredient.Quantity = request.Quantity;
-            currentIgredient.RestaurantId = request.RestaurantId;
+            currentIgredient.RestaurantId = RestaurantId;
             await _context.SaveChangesAsync();
 
-            IngredientDto ingredientDto = new() { Id = currentIgredient.Id, Name = currentIgredient.Name, Quantity = currentIgredient.Quantity, RestaurantId = currentIgredient.RestaurantId };
+            IngredientDto ingredientDto = new() { Id = currentIgredient.Id.ToString(), Name = currentIgredient.Name, Quantity = currentIgredient.Quantity, RestaurantId = currentIgredient.RestaurantId };
 
             await _redis.SetStringAsync("ingredient:all", "");
             await _redis.SetStringAsync($"ingredient:{id}", "");
@@ -156,7 +156,6 @@ namespace MsCatalog.Controllers
     public class IngredientModel {
         public string Name { get; set; } = "";
         public int Quantity { get; set; }
-        public int RestaurantId { get; set; }
     }
 
 }

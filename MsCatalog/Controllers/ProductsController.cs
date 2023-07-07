@@ -30,7 +30,7 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts(int RestaurantId, [FromQuery] PaginationFilter filter, int? CategoryId)
+        public async Task<IActionResult> GetProducts(string RestaurantId, [FromQuery] PaginationFilter filter, string? CategoryId)
         {
 
             List<ProductsDto> products = new();
@@ -40,7 +40,7 @@ namespace MsCatalog.Controllers
             string route = Request.Path.Value!;
             PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-            string key = $"product:all";
+            string key = $"restaurant:{RestaurantId}:product:all";
             string? cachedProducts = await _redis.GetStringAsync(key);
             if (string.IsNullOrEmpty(cachedProducts))
             {
@@ -48,7 +48,7 @@ namespace MsCatalog.Controllers
                     .Include(p => p.Category)
                     .Where(p => p.Visible)
                     .Select(p => new ProductsDto(
-                        p.Id,
+                        p.Id.ToString(),
                         p.Label,
                         p.Description,
                         p.Price,
@@ -58,7 +58,7 @@ namespace MsCatalog.Controllers
                         p.Quantity,
                         p.CreatedAt,
                         p.UpdatedAt,
-                        p.Category != null ? p.Category.Id : 0,
+                        p.Category != null ? p.Category.Id.ToString() : null,
                         p.RestaurantId)
                     ).ToListAsync();
 
@@ -97,7 +97,7 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct(ProductRequestModel product)
+        public async Task<IActionResult> CreateProduct(string RestaurantId, ProductRequestModel product)
         {
             if (product == null)
             {
@@ -110,12 +110,12 @@ namespace MsCatalog.Controllers
                 product.Price, product.TaxPercent, 
                 product.SpecialPrice, product.Visible, 
                 product.Quantity, 
-                product.IdRestaurant
+                RestaurantId
             );
 
-            if (product.Idcategory != null)
+            if (product.CategoryId != null)
             {
-                Category? categ = await _context.Categories.Where(c => c.Id == product.Idcategory).FirstOrDefaultAsync();
+                Category? categ = await _context.Categories.Where(c => c.Id.ToString() == product.CategoryId).FirstOrDefaultAsync();
                 newProduct.Category = categ;
             }
 
@@ -123,7 +123,7 @@ namespace MsCatalog.Controllers
             await _context.SaveChangesAsync();
 
             ProductsDto productDto = new(
-                newProduct.Id,
+                newProduct.Id.ToString(),
                 newProduct.Label,
                 newProduct.Description,
                 newProduct.Price,
@@ -133,27 +133,27 @@ namespace MsCatalog.Controllers
                 newProduct.Quantity,
                 newProduct.CreatedAt,
                 newProduct.UpdatedAt,
-                newProduct.Category != null ? newProduct.Category.Id : 0,
+                newProduct.Category != null ? newProduct.Category.Id.ToString() : "",
                 newProduct.RestaurantId);
 
-            await _redis.SetStringAsync("product:all", "");
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:all", "");
 
             return Ok(productDto);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(int RestaurantId, int id)
+        public async Task<IActionResult> GetProductById(string RestaurantId, string id)
         {
-            string? cachedProduct = await _redis.GetStringAsync($"product:{id}");
+            string? cachedProduct = await _redis.GetStringAsync($"restaurant:{RestaurantId}:product:{id}");
             ProductsDto? product = null;
 
             if (cachedProduct == null)
             {
                 product = await _context.Products
                     .Include(p => p.Category)
-                    .Where(p => p.Id == id && p.RestaurantId == RestaurantId)
+                    .Where(p => p.Id.ToString() == id && p.RestaurantId == RestaurantId)
                     .Select(p => new ProductsDto(
-                        p.Id,
+                        p.Id.ToString(),
                         p.Label,
                         p.Description,
                         p.Price,
@@ -163,7 +163,7 @@ namespace MsCatalog.Controllers
                         p.Quantity,
                         p.CreatedAt,
                         p.UpdatedAt,
-                        p.Category != null ? p.Category.Id : 0,
+                        p.Category != null ? p.Category.Id.ToString() :"",
                         p.RestaurantId)
                     ).FirstOrDefaultAsync();
 
@@ -172,7 +172,7 @@ namespace MsCatalog.Controllers
                     return NotFound();
                 }
 
-                await _redis.SetStringAsync($"product:{id}", JsonConvert.SerializeObject(product));
+                await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:{id}", JsonConvert.SerializeObject(product));
                 return Ok(product);
             }
 
@@ -181,9 +181,9 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int RestaurantId, int id, ProductRequestModel product)
+        public async Task<IActionResult> UpdateProduct(string RestaurantId, string id, ProductRequestModel product)
         {
-            Product? currentProduct = await _context.Products.Where(c => c.Id == id && c.RestaurantId == RestaurantId).FirstOrDefaultAsync();
+            Product? currentProduct = await _context.Products.Where(c => c.Id.ToString() == id && c.RestaurantId == RestaurantId).FirstOrDefaultAsync();
 
             if (currentProduct == null)
             {
@@ -197,11 +197,10 @@ namespace MsCatalog.Controllers
             currentProduct.SpecialPrice = product.SpecialPrice;
             currentProduct.Visible = product.Visible;
             currentProduct.Quantity = product.Quantity;
-            currentProduct.RestaurantId = product.IdRestaurant;
 
-            if (product.Idcategory != null)
+            if (product.CategoryId != null)
             {
-                Category? categ = await _context.Categories.Where(c => c.Id == product.Idcategory).FirstOrDefaultAsync();
+                Category? categ = await _context.Categories.Where(c => c.Id.ToString() == product.CategoryId).FirstOrDefaultAsync();
                 currentProduct.Category = categ;
             }
 
@@ -210,7 +209,7 @@ namespace MsCatalog.Controllers
             await _context.SaveChangesAsync();
 
             ProductsDto productDto = new(
-                currentProduct.Id,
+                currentProduct.Id.ToString(),
                 currentProduct.Label,
                 currentProduct.Description,
                 currentProduct.Price,
@@ -220,12 +219,12 @@ namespace MsCatalog.Controllers
                 currentProduct.Quantity,
                 currentProduct.CreatedAt,
                 currentProduct.UpdatedAt,
-                currentProduct.Category != null ? currentProduct.Category.Id : 0,
+                currentProduct.Category != null ? currentProduct.Category.Id.ToString() : "",
                 currentProduct.RestaurantId);
 
 
-            await _redis.SetStringAsync("product:all", "");
-            await _redis.SetStringAsync($"product:{id}", "");
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:all", "");
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:{id}", "");
 
             return Ok(productDto);
         }
@@ -239,13 +238,12 @@ namespace MsCatalog.Controllers
         public double SpecialPrice { get; set; }
         public bool Visible { get; set; }
         public int Quantity { get; set; }
-        public int? Idcategory { get; set; }
-        public int IdRestaurant { get; set; }
+        public string? CategoryId { get; set; }
     }
 
     public class GetProductsRequestModel
     {
-        public int RestaurantId { get; set; }
-        public int? CategoryId { get; set; }
+        public string RestaurantId { get; set; }
+        public string? CategoryId { get; set; }
     }
 }

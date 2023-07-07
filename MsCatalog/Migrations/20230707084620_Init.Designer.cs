@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MsCatalog.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20230704125403_Init")]
+    [Migration("20230707084620_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -27,11 +27,9 @@ namespace MsCatalog.Migrations
 
             modelBuilder.Entity("MsCatalog.Models.Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -44,11 +42,9 @@ namespace MsCatalog.Migrations
 
             modelBuilder.Entity("MsCatalog.Models.Ingredient", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -57,8 +53,9 @@ namespace MsCatalog.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RestaurantId")
-                        .HasColumnType("integer");
+                    b.Property<string>("RestaurantId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -67,14 +64,12 @@ namespace MsCatalog.Migrations
 
             modelBuilder.Entity("MsCatalog.Models.Product", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
@@ -93,8 +88,9 @@ namespace MsCatalog.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RestaurantId")
-                        .HasColumnType("integer");
+                    b.Property<string>("RestaurantId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<double>("SpecialPrice")
                         .HasColumnType("double precision");
@@ -117,20 +113,28 @@ namespace MsCatalog.Migrations
 
             modelBuilder.Entity("MsCatalog.Models.ProductsIngredients", b =>
                 {
-                    b.Property<int>("IngredientId")
-                        .HasColumnType("integer")
+                    b.Property<string>("IngredientId")
+                        .HasColumnType("text")
                         .HasColumnOrder(1);
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                    b.Property<string>("ProductId")
+                        .HasColumnType("text")
                         .HasColumnOrder(0);
+
+                    b.Property<Guid>("IngredientId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId1")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
                     b.HasKey("IngredientId", "ProductId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("IngredientId1");
+
+                    b.HasIndex("ProductId1");
 
                     b.ToTable("ProductsIngredients");
                 });
@@ -148,13 +152,13 @@ namespace MsCatalog.Migrations
                 {
                     b.HasOne("MsCatalog.Models.Ingredient", "Ingredient")
                         .WithMany("ProductsIngredients")
-                        .HasForeignKey("IngredientId")
+                        .HasForeignKey("IngredientId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MsCatalog.Models.Product", "Product")
                         .WithMany("ProductsIngredients")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("ProductId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
