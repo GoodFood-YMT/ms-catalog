@@ -32,7 +32,7 @@ namespace MsCatalog.Controllers
         [HttpGet]
         public async Task<IActionResult> GetIngredients(string RestaurantId, [FromQuery] PaginationFilter filter)
         {
-            string? cachedIngredients = await _redis.GetStringAsync("ingredient:all");
+            string? cachedIngredients = await _redis.GetStringAsync($"restaurant:{RestaurantId}:ingredient:all");
             List<IngredientDto>? ingredients = new List<IngredientDto>();
 
             PagedResponse<List<IngredientDto>> pagedReponse;
@@ -50,7 +50,7 @@ namespace MsCatalog.Controllers
                         RestaurantId = i.RestaurantId 
                     }).ToListAsync();
 
-                await _redis.SetStringAsync($"ingredient:all", ingredients.Count > 0 ? JsonConvert.SerializeObject(ingredients) : "");
+                await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:all", ingredients.Count > 0 ? JsonConvert.SerializeObject(ingredients) : "");
 
                 ingredients = ingredients.Where(i => i.RestaurantId == RestaurantId).ToList();
 
@@ -94,7 +94,7 @@ namespace MsCatalog.Controllers
                 RestaurantId = newIngredient.RestaurantId 
             };
 
-            await _redis.SetStringAsync("ingredient:all", "");
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:all", "");
 
             return Ok(ingredient);
         }
@@ -102,7 +102,7 @@ namespace MsCatalog.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetIngredientById(string RestaurantId, string id)
         {
-            string? cachedIngredient = await _redis.GetStringAsync($"ingredient:{id}");
+            string? cachedIngredient = await _redis.GetStringAsync($"restaurant:{RestaurantId}:ingredient:{id}");
             IngredientDto? ingredient = null;
 
             if (string.IsNullOrEmpty(cachedIngredient))
@@ -121,7 +121,7 @@ namespace MsCatalog.Controllers
                     return NotFound();
                 }
 
-                await _redis.SetStringAsync($"ingredient:{id}", JsonConvert.SerializeObject(ingredient));
+                await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:{id}", JsonConvert.SerializeObject(ingredient));
                 return Ok(ingredient);
             }
 
@@ -146,8 +146,8 @@ namespace MsCatalog.Controllers
 
             IngredientDto ingredientDto = new() { Id = currentIgredient.Id.ToString(), Name = currentIgredient.Name, Quantity = currentIgredient.Quantity, RestaurantId = currentIgredient.RestaurantId };
 
-            await _redis.SetStringAsync("ingredient:all", "");
-            await _redis.SetStringAsync($"ingredient:{id}", "");
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:all", "");
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:{id}", "");
 
             return Ok(ingredientDto);
         }
