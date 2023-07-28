@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
-    [Route("catalog/{RestaurantId}/products")]
+    [Route("catalog")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -29,7 +29,7 @@ namespace MsCatalog.Controllers
             _uriService = uriService;
         }
 
-        [HttpGet]
+        [HttpGet("{RestaurantId}/products")]
         public async Task<IActionResult> GetProducts(string RestaurantId, [FromQuery] PaginationFilter filter, string? CategoryId)
         {
 
@@ -52,8 +52,6 @@ namespace MsCatalog.Controllers
                         p.Label,
                         p.Description,
                         p.Price,
-                        p.TaxPercent,
-                        p.SpecialPrice,
                         p.Visible,
                         p.Quantity,
                         p.CreatedAt,
@@ -96,8 +94,8 @@ namespace MsCatalog.Controllers
             return Ok(pagedReponse);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateProduct(string RestaurantId, ProductRequestModel product)
+        [HttpPost("products")]
+        public async Task<IActionResult> CreateProduct(ProductRequestModel product)
         {
             if (product == null)
             {
@@ -106,11 +104,11 @@ namespace MsCatalog.Controllers
 
             Product newProduct = new(
                 product.Label, 
-                product.Description, 
-                product.Price, product.TaxPercent, 
-                product.SpecialPrice, product.Visible, 
+                product.Description,
+                product.Price,
+                product.Visible, 
                 product.Quantity, 
-                RestaurantId
+                product.RestaurantId
             );
 
             if (product.CategoryId != null)
@@ -127,8 +125,6 @@ namespace MsCatalog.Controllers
                 newProduct.Label,
                 newProduct.Description,
                 newProduct.Price,
-                newProduct.TaxPercent,
-                newProduct.SpecialPrice,
                 newProduct.Visible,
                 newProduct.Quantity,
                 newProduct.CreatedAt,
@@ -136,29 +132,27 @@ namespace MsCatalog.Controllers
                 newProduct.Category != null ? newProduct.Category.Id.ToString() : "",
                 newProduct.RestaurantId);
 
-            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:all", "");
+            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product:all", string.Empty);
 
             return Ok(productDto);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(string RestaurantId, string id)
+        [HttpGet("product/{id}")]
+        public async Task<IActionResult> GetProductById(string id)
         {
-            string? cachedProduct = await _redis.GetStringAsync($"restaurant:{RestaurantId}:product:{id}");
+            string? cachedProduct = await _redis.GetStringAsync($"product:{id}");
             ProductsDto? product = null;
 
             if (cachedProduct == null)
             {
                 product = await _context.Products
                     .Include(p => p.Category)
-                    .Where(p => p.Id.ToString() == id && p.RestaurantId == RestaurantId)
+                    .Where(p => p.Id.ToString() == id)
                     .Select(p => new ProductsDto(
                         p.Id.ToString(),
                         p.Label,
                         p.Description,
                         p.Price,
-                        p.TaxPercent,
-                        p.SpecialPrice,
                         p.Visible,
                         p.Quantity,
                         p.CreatedAt,
@@ -172,7 +166,7 @@ namespace MsCatalog.Controllers
                     return NotFound();
                 }
 
-                await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:{id}", JsonConvert.SerializeObject(product));
+                await _redis.SetStringAsync($"product:{id}", JsonConvert.SerializeObject(product));
                 return Ok(product);
             }
 
@@ -180,10 +174,10 @@ namespace MsCatalog.Controllers
             return Ok(product);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(string RestaurantId, string id, ProductRequestModel product)
+        [HttpPut("product/{id}")]
+        public async Task<IActionResult> UpdateProduct(string id, ProductRequestModelForUpdate product)
         {
-            Product? currentProduct = await _context.Products.Where(c => c.Id.ToString() == id && c.RestaurantId == RestaurantId).FirstOrDefaultAsync();
+            Product? currentProduct = await _context.Products.Where(c => c.Id.ToString() == id).FirstOrDefaultAsync();
 
             if (currentProduct == null)
             {
@@ -193,8 +187,6 @@ namespace MsCatalog.Controllers
             currentProduct.Label = product.Label;
             currentProduct.Description = product.Description;
             currentProduct.Price = product.Price;
-            currentProduct.TaxPercent = product.TaxPercent;
-            currentProduct.SpecialPrice = product.SpecialPrice;
             currentProduct.Visible = product.Visible;
             currentProduct.Quantity = product.Quantity;
 
@@ -213,8 +205,6 @@ namespace MsCatalog.Controllers
                 currentProduct.Label,
                 currentProduct.Description,
                 currentProduct.Price,
-                currentProduct.TaxPercent,
-                currentProduct.SpecialPrice,
                 currentProduct.Visible,
                 currentProduct.Quantity,
                 currentProduct.CreatedAt,
@@ -223,8 +213,8 @@ namespace MsCatalog.Controllers
                 currentProduct.RestaurantId);
 
 
-            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:all", "");
-            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:{id}", "");
+            await _redis.SetStringAsync($"restaurant:{currentProduct.RestaurantId}:product:all", string.Empty);
+            await _redis.SetStringAsync($"product:{id}", string.Empty);
 
             return Ok(productDto);
         }
@@ -233,17 +223,24 @@ namespace MsCatalog.Controllers
     {
         public string Label { get; set; } = "";
         public string Description { get; set; } = "";
-        public double Price { get; set; }
+        public decimal Price { get; set; }
         public double TaxPercent { get; set; }
         public double SpecialPrice { get; set; }
         public bool Visible { get; set; }
         public int Quantity { get; set; }
         public string? CategoryId { get; set; }
+        public string RestaurantId { get; set; } = "";
     }
 
-    public class GetProductsRequestModel
+    public class ProductRequestModelForUpdate
     {
-        public string RestaurantId { get; set; }
+        public string Label { get; set; } = "";
+        public string Description { get; set; } = "";
+        public decimal Price { get; set; }
+        public double TaxPercent { get; set; }
+        public double SpecialPrice { get; set; }
+        public bool Visible { get; set; }
+        public int Quantity { get; set; }
         public string? CategoryId { get; set; }
     }
 }
