@@ -237,10 +237,9 @@ namespace MsCatalog.Controllers
         public bool ValideFields()
         {
             return !string.IsNullOrEmpty(Label)
-                && !string.IsNullOrEmpty(Description)&&
+                && !string.IsNullOrEmpty(Description) &&
                 !string.IsNullOrEmpty(RestaurantId) &&
-                Price > 0 &&
-                !string.IsNullOrEmpty(CategoryId);
+                Price > 0;
         }
     }
 
