@@ -83,6 +83,11 @@ namespace MsCatalog.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateIngredient(string RestaurantId, IngredientModel request)
         {
+            if (string.IsNullOrEmpty(request.Name))
+            {
+                return BadRequest();
+            }
+
             Ingredient newIngredient = new(request.Name, request.Quantity, RestaurantId);
             _context.Ingredients.Add(newIngredient);
             await _context.SaveChangesAsync();
@@ -132,6 +137,12 @@ namespace MsCatalog.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateIngredient(string RestaurantId, string id, [FromBody] IngredientModel request)
         {
+
+            if(string.IsNullOrEmpty(request.Name))
+            {
+                return BadRequest(request);
+            }
+
             Ingredient? currentIgredient = await _context.Ingredients.Where(i => i.Id.ToString() == id && i.RestaurantId == RestaurantId).FirstOrDefaultAsync();
 
             if (currentIgredient == null)

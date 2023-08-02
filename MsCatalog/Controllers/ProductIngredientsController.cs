@@ -105,6 +105,7 @@ namespace MsCatalog.Controllers
         [HttpPost("{ingredientId}")]
         public async Task<IActionResult> AddIngredientByProduct(string productId, string ingredientId, [FromBody] QuantityRequiredModel request)
         {
+
             Product? currentProduct = await _context.Products.Where(p => p.Id.ToString() == productId).FirstOrDefaultAsync();
             Ingredient? currentIngredient = await _context.Ingredients.Where(i => i.Id.ToString() == ingredientId).FirstOrDefaultAsync();
             if (currentProduct != null &&  currentIngredient != null)

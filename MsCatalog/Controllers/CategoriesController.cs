@@ -77,7 +77,10 @@ namespace MsCatalog.Controllers
         [HttpPost()]
         public async Task<IActionResult> Create(CategoryRequestModel request)
         {
-            //string test = Guid.NewGuid().ToString();
+            if(request == null || string.IsNullOrEmpty(request.Name))
+            {
+                return BadRequest();
+            }
             Category newCategory = new(request.Name);          
             _context.Categories.Add(newCategory);
             await _context.SaveChangesAsync();
@@ -118,6 +121,11 @@ namespace MsCatalog.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Category>> Edit(string id, [FromBody] CategoryRequestModel request)
         {
+
+            if(request == null || string.IsNullOrEmpty(request.Name)){
+                return BadRequest();
+            }
+
             Category? currentCategory = _context.Categories.Where(c => c.Id.ToString() == id).FirstOrDefault();
             if (currentCategory != null)
             {

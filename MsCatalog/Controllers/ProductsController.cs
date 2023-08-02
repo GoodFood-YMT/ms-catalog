@@ -97,7 +97,7 @@ namespace MsCatalog.Controllers
         [HttpPost("products")]
         public async Task<IActionResult> CreateProduct(ProductRequestModel product)
         {
-            if (product == null)
+            if (product == null || !product.ValideFields())
             {
                 return BadRequest();
             }
@@ -137,7 +137,7 @@ namespace MsCatalog.Controllers
             return Ok(productDto);
         }
 
-        [HttpGet("product/{id}")]
+        [HttpGet("products/{id}")]
         public async Task<IActionResult> GetProductById(string id)
         {
             string? cachedProduct = await _redis.GetStringAsync($"product:{id}");
@@ -174,7 +174,7 @@ namespace MsCatalog.Controllers
             return Ok(product);
         }
 
-        [HttpPut("product/{id}")]
+        [HttpPut("products/{id}")]
         public async Task<IActionResult> UpdateProduct(string id, ProductRequestModelForUpdate product)
         {
             Product? currentProduct = await _context.Products.Where(c => c.Id.ToString() == id).FirstOrDefaultAsync();
@@ -182,6 +182,11 @@ namespace MsCatalog.Controllers
             if (currentProduct == null)
             {
                 return NotFound();
+            }
+
+            if(product == null || !product.ValideFields())
+            {
+                return BadRequest();
             }
 
             currentProduct.Label = product.Label;
@@ -224,12 +229,19 @@ namespace MsCatalog.Controllers
         public string Label { get; set; } = "";
         public string Description { get; set; } = "";
         public decimal Price { get; set; }
-        public double TaxPercent { get; set; }
-        public double SpecialPrice { get; set; }
         public bool Visible { get; set; }
         public int Quantity { get; set; }
         public string? CategoryId { get; set; }
         public string RestaurantId { get; set; } = "";
+
+        public bool ValideFields()
+        {
+            return !string.IsNullOrEmpty(Label)
+                && !string.IsNullOrEmpty(Description)&&
+                !string.IsNullOrEmpty(RestaurantId) &&
+                Price > 0 &&
+                !string.IsNullOrEmpty(CategoryId);
+        }
     }
 
     public class ProductRequestModelForUpdate
@@ -237,10 +249,15 @@ namespace MsCatalog.Controllers
         public string Label { get; set; } = "";
         public string Description { get; set; } = "";
         public decimal Price { get; set; }
-        public double TaxPercent { get; set; }
-        public double SpecialPrice { get; set; }
         public bool Visible { get; set; }
         public int Quantity { get; set; }
         public string? CategoryId { get; set; }
+
+        public bool ValideFields()
+        {
+            return !string.IsNullOrEmpty(Label)
+                && !string.IsNullOrEmpty(Description) &&
+                Price > 0;
+        }
     }
 }
