@@ -32,15 +32,13 @@ namespace MsCatalog.Controllers
         [HttpGet("{RestaurantId}/products")]
         public async Task<IActionResult> GetProducts(string RestaurantId, [FromQuery] PaginationFilter filter, string? CategoryId)
         {
-
             List<ProductsDto> products = new();
             PagedResponse<List<ProductsDto>> pagedReponse;
             int totalRecords = 0;
-
             string route = Request.Path.Value!;
             PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
 
-            string key = $"restaurant:{RestaurantId}:product:all";
+            string key = $"restaurant:{RestaurantId}:product-visible:all";
             string? cachedProducts = await _redis.GetStringAsync(key);
             if (string.IsNullOrEmpty(cachedProducts))
             {
@@ -65,16 +63,66 @@ namespace MsCatalog.Controllers
                 products = products.Where(p => p.RestaurantId == RestaurantId && (CategoryId == null || p.CategoryId == CategoryId)).ToList();
 
                 totalRecords = products.Count();
-
                 products
                     .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                     .Take(validFilter.PageSize)
                     .ToList();
+                pagedReponse = PaginationHelper.CreatePagedReponse(products, validFilter, totalRecords, _uriService, route);
+           
+                return Ok(pagedReponse);
+            }
+            products = JsonConvert.DeserializeObject<List<ProductsDto>>(cachedProducts)
+                .Where(p => p.RestaurantId == RestaurantId && (CategoryId == null || p.CategoryId == CategoryId))
+                .ToList();
 
+            totalRecords = products!.Count();
+            products = products
+                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                .Take(validFilter.PageSize)
+                .ToList();         
+            pagedReponse = PaginationHelper.CreatePagedReponse(products!, validFilter, totalRecords, _uriService, route);
 
+            return Ok(pagedReponse);
+        }
+
+        [HttpGet("{RestaurantId}/products/all")]
+        public async Task<IActionResult> GetAllProducts(string RestaurantId, [FromQuery] PaginationFilter filter, string? CategoryId)
+        {
+            List<ProductsDto> products = new();
+            PagedResponse<List<ProductsDto>> pagedReponse;
+            int totalRecords = 0;
+            string route = Request.Path.Value!;
+            PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            string key = $"restaurant:{RestaurantId}:product:all";
+            string? cachedProducts = await _redis.GetStringAsync(key);
+            if (string.IsNullOrEmpty(cachedProducts))
+            {
+                products = await _context.Products
+                    .Include(p => p.Category)
+                    .Select(p => new ProductsDto(
+                        p.Id.ToString(),
+                        p.Label,
+                        p.Description,
+                        p.Price,
+                        p.Visible,
+                        p.Quantity,
+                        p.CreatedAt,
+                        p.UpdatedAt,
+                        p.Category != null ? p.Category.Id.ToString() : null,
+                        p.RestaurantId)
+                    ).ToListAsync();
+
+                await _redis.SetStringAsync(key, products.Count > 0 ? JsonConvert.SerializeObject(products) : "");
+
+                products = products.Where(p => p.RestaurantId == RestaurantId && (CategoryId == null || p.CategoryId == CategoryId)).ToList();
+                totalRecords = products.Count();
+                products
+                    .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                    .Take(validFilter.PageSize)
+                    .ToList();
                 pagedReponse = PaginationHelper.CreatePagedReponse(products, validFilter, totalRecords, _uriService, route);
 
-                
                 return Ok(pagedReponse);
             }
 
@@ -88,7 +136,116 @@ namespace MsCatalog.Controllers
                 .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                 .Take(validFilter.PageSize)
                 .ToList();
-            
+
+            pagedReponse = PaginationHelper.CreatePagedReponse(products!, validFilter, totalRecords, _uriService, route);
+
+            return Ok(pagedReponse);
+        }
+
+        [HttpGet("products/inStock")]
+        public async Task<IActionResult> GetProductsInStock([FromQuery] PaginationFilter filter)
+        {
+            List<ProductsDto> products = new();
+            PagedResponse<List<ProductsDto>> pagedReponse;
+            int totalRecords = 0;
+            string route = Request.Path.Value!;
+            PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            string key = $"product-inStock:all";
+            string? cachedProducts = await _redis.GetStringAsync(key);
+            if (string.IsNullOrEmpty(cachedProducts))
+            {
+                products = await _context.Products
+                    .Include(p => p.Category)
+                    .Where(p => p.Quantity > 0 && p.Visible)
+                    .Select(p => new ProductsDto(
+                        p.Id.ToString(),
+                        p.Label,
+                        p.Description,
+                        p.Price,
+                        p.Visible,
+                        p.Quantity,
+                        p.CreatedAt,
+                        p.UpdatedAt,
+                        p.Category != null ? p.Category.Id.ToString() : null,
+                        p.RestaurantId)
+                    ).ToListAsync();
+
+                await _redis.SetStringAsync(key, products.Count() > 0 ? JsonConvert.SerializeObject(products) : "");
+
+                totalRecords = products.Count();
+                products
+                    .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                    .Take(validFilter.PageSize)
+                    .ToList();
+                pagedReponse = PaginationHelper.CreatePagedReponse(products, validFilter, totalRecords, _uriService, route);
+
+                return Ok(pagedReponse);
+            }
+
+            products = JsonConvert.DeserializeObject<List<ProductsDto>>(cachedProducts).ToList();
+
+            totalRecords = products!.Count();
+
+            products = products
+                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                .Take(validFilter.PageSize)
+                .ToList();
+            pagedReponse = PaginationHelper.CreatePagedReponse(products!, validFilter, totalRecords, _uriService, route);
+
+            return Ok(pagedReponse);
+        }
+
+        [HttpGet("{RestaurantId}/products/inStock")]
+        public async Task<IActionResult> GetProductsInStockByRestaurant(string RestaurantId, [FromQuery] PaginationFilter filter, string? CategoryId)
+        {
+            List<ProductsDto> products = new();
+            PagedResponse<List<ProductsDto>> pagedReponse;
+            int totalRecords = 0;
+            string route = Request.Path.Value!;
+            PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
+            string key = $"restaurant:{RestaurantId}:product-inStock:all";
+            string? cachedProducts = await _redis.GetStringAsync(key);
+            if (string.IsNullOrEmpty(cachedProducts))
+            {
+                products = await _context.Products
+                    .Include(p => p.Category)
+                    .Where(p => p.Quantity > 0 && p.Visible)
+                    .Select(p => new ProductsDto(
+                        p.Id.ToString(),
+                        p.Label,
+                        p.Description,
+                        p.Price,
+                        p.Visible,
+                        p.Quantity,
+                        p.CreatedAt,
+                        p.UpdatedAt,
+                        p.Category != null ? p.Category.Id.ToString() : null,
+                        p.RestaurantId)
+                    ).ToListAsync();
+
+                await _redis.SetStringAsync(key, products.Count() > 0 ? JsonConvert.SerializeObject(products) : "");
+
+                products = products.Where(p => p.RestaurantId == RestaurantId && (CategoryId == null || p.CategoryId == CategoryId)).ToList();
+                totalRecords = products.Count();
+                products
+                    .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                    .Take(validFilter.PageSize)
+                    .ToList();
+                pagedReponse = PaginationHelper.CreatePagedReponse(products, validFilter, totalRecords, _uriService, route);
+
+                return Ok(pagedReponse);
+            }
+            products = JsonConvert.DeserializeObject<List<ProductsDto>>(cachedProducts)
+                .Where(p => p.RestaurantId == RestaurantId && (CategoryId == null || p.CategoryId == CategoryId))
+                .ToList();
+
+            totalRecords = products!.Count();
+            products = products
+                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                .Take(validFilter.PageSize)
+                .ToList();
             pagedReponse = PaginationHelper.CreatePagedReponse(products!, validFilter, totalRecords, _uriService, route);
 
             return Ok(pagedReponse);
@@ -108,8 +265,7 @@ namespace MsCatalog.Controllers
                 product.Price,
                 product.Visible, 
                 product.Quantity, 
-                product.RestaurantId
-            );
+                product.RestaurantId);
 
             if (product.CategoryId != null)
             {
@@ -133,6 +289,10 @@ namespace MsCatalog.Controllers
                 newProduct.RestaurantId);
 
             await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product:all", string.Empty);
+            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-visible:all", string.Empty);
+            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-inStock:all", string.Empty);
+            await _redis.SetStringAsync($"product-inStock:all", string.Empty);
+            await _redis.SetStringAsync($"product-visible:all", string.Empty);
 
             return Ok(productDto);
         }
@@ -219,6 +379,10 @@ namespace MsCatalog.Controllers
 
 
             await _redis.SetStringAsync($"restaurant:{currentProduct.RestaurantId}:product:all", string.Empty);
+            await _redis.SetStringAsync($"restaurant:{currentProduct.RestaurantId}:product-visible:all", string.Empty);
+            await _redis.SetStringAsync($"restaurant:{currentProduct.RestaurantId}:product-inStock:all", string.Empty);
+            await _redis.SetStringAsync($"product-inStock:all", string.Empty);
+            await _redis.SetStringAsync($"product-visible:all", string.Empty);
             await _redis.SetStringAsync($"product:{id}", string.Empty);
 
             return Ok(productDto);
