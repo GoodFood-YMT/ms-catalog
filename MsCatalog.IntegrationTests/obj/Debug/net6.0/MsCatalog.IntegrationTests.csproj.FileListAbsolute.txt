@@ -682,7 +682,6 @@ C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.Integration
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\refs\System.Text.Encodings.Web.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\refs\System.Text.Json.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\refs\System.Text.RegularExpressions.dll
-C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\refs\System.Threading.Channels.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\refs\System.Threading.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\refs\System.Threading.Overlapped.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\refs\System.Threading.Tasks.Dataflow.dll
@@ -844,3 +843,5 @@ C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.Integration
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6.0\MsCatalog.IntegrationTests.pdb
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6.0\MsCatalog.IntegrationTests.genruntimeconfig.cache
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6.0\ref\MsCatalog.IntegrationTests.dll
+C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\RabbitMQ.Client.dll
+C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\System.Threading.Channels.dll
