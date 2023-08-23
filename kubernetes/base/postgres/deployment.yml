@@ -12,6 +12,10 @@ spec:
       labels:
         app: ms-catalog-db
     spec:
+      tolerations:
+        - key: "node.kubernetes.io/unschedulable"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - name: ms-catalog-db
           image: postgres

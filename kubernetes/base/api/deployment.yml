@@ -14,6 +14,10 @@ spec:
       labels:
         app: ms-catalog
     spec:
+      tolerations:
+        - key: "node.kubernetes.io/unschedulable"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - envFrom:
             - configMapRef:

@@ -12,6 +12,10 @@ spec:
       labels:
         app: ms-catalog-cache
     spec:
+      tolerations:
+        - key: "node.kubernetes.io/unschedulable"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - name: ms-catalog-cache
           image: redis
