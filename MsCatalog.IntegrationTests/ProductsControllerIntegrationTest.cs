@@ -13,7 +13,7 @@ namespace MsCatalog.IntegrationTests
         [Fact]
         public async Task GetProducts_Success()
         {
-            var endpoint = "catalog/1/products";
+            var endpoint = "catalog/1/products/inStock";
 
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_client.BaseAddress, endpoint));
 
@@ -21,7 +21,7 @@ namespace MsCatalog.IntegrationTests
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["PageNumber"] = "1";
             query["PageSize"] = "1";
-            query["RestaurantId"] = "1";
+            
             uriBuilder.Query = query.ToString();
             request.RequestUri = uriBuilder.Uri;
 
@@ -34,6 +34,8 @@ namespace MsCatalog.IntegrationTests
         {
             var postRequest = new HttpRequestMessage(HttpMethod.Post, "catalog/products");
 
+            postRequest.Headers.Add("RestaurantID", "1");
+
             var formModel = new Dictionary<string, dynamic>
             {
                 { "label", "TestLabel" },
@@ -41,7 +43,6 @@ namespace MsCatalog.IntegrationTests
                 { "price", 20 },
                 { "visible", true },
                 { "quantity", 20 },
-                { "restaurantId", "1" }
             };
 
 
@@ -64,6 +65,8 @@ namespace MsCatalog.IntegrationTests
         {
             var postRequest = new HttpRequestMessage(HttpMethod.Post, "/catalog/products");
 
+            postRequest.Headers.Add("RestaurantID", "1");
+
             var formModel = new Dictionary<string, dynamic>
             {
                 { "label", "TestLabel" },
@@ -71,7 +74,6 @@ namespace MsCatalog.IntegrationTests
                 { "price", 20 },
                 { "visible", true },
                 { "quantity", 20 },
-                { "restaurantId", "1" }
             };
 
 
