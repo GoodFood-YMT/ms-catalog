@@ -254,18 +254,19 @@ namespace MsCatalog.Controllers
         [HttpPost("products")]
         public async Task<IActionResult> CreateProduct(ProductRequestModel product)
         {
-            if (product == null || !product.ValideFields())
+            string RestaurantId = Request.Headers["RestaurantID"].ToString();
+            if (product == null || string.IsNullOrEmpty(RestaurantId) || !product.ValideFields())
             {
                 return BadRequest();
             }
 
-            Product newProduct = new(
+            Product newProduct = new(   
                 product.Label, 
                 product.Description,
-                product.Price,
-                product.Visible, 
-                product.Quantity, 
-                product.RestaurantId);
+                product.Price.Value,
+                product.Visible.Value, 
+                product.Quantity.Value, 
+                RestaurantId);
 
             if (product.CategoryId != null)
             {
@@ -288,9 +289,9 @@ namespace MsCatalog.Controllers
                 newProduct.Category != null ? newProduct.Category.Id.ToString() : "",
                 newProduct.RestaurantId);
 
-            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product:all", string.Empty);
-            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-visible:all", string.Empty);
-            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-inStock:all", string.Empty);
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product:all", string.Empty);
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product-visible:all", string.Empty);
+            await _redis.SetStringAsync($"restaurant:{RestaurantId}:product-inStock:all", string.Empty);
             await _redis.SetStringAsync($"product-inStock:all", string.Empty);
             await _redis.SetStringAsync($"product-visible:all", string.Empty);
 
@@ -335,7 +336,7 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPut("products/{id}")]
-        public async Task<IActionResult> UpdateProduct(string id, ProductRequestModelForUpdate product)
+        public async Task<IActionResult> UpdateProduct(string id, ProductRequestModel product)
         {
             Product? currentProduct = await _context.Products.Where(c => c.Id.ToString() == id).FirstOrDefaultAsync();
 
@@ -344,16 +345,16 @@ namespace MsCatalog.Controllers
                 return NotFound();
             }
 
-            if(product == null || !product.ValideFields())
+            if(product == null)
             {
                 return BadRequest();
             }
 
-            currentProduct.Label = product.Label;
-            currentProduct.Description = product.Description;
-            currentProduct.Price = product.Price;
-            currentProduct.Visible = product.Visible;
-            currentProduct.Quantity = product.Quantity;
+            if (!string.IsNullOrEmpty(product.Label)) { currentProduct.Label = product.Label; };
+            if (!string.IsNullOrEmpty(product.Description)) { currentProduct.Description = product.Description; }
+            if (product.Price.HasValue) { currentProduct.Price = product.Price.Value; }
+            if (product.Visible.HasValue) { currentProduct.Visible = product.Visible.Value; }
+            if (product.Quantity.HasValue) { currentProduct.Quantity = product.Quantity.Value; }
 
             if (product.CategoryId != null)
             {
@@ -392,35 +393,19 @@ namespace MsCatalog.Controllers
     {
         public string Label { get; set; } = "";
         public string Description { get; set; } = "";
-        public decimal Price { get; set; }
-        public bool Visible { get; set; }
-        public int Quantity { get; set; }
-        public string? CategoryId { get; set; }
-        public string RestaurantId { get; set; } = "";
-
-        public bool ValideFields()
-        {
-            return !string.IsNullOrEmpty(Label)
-                && !string.IsNullOrEmpty(Description) &&
-                !string.IsNullOrEmpty(RestaurantId) &&
-                Price > 0;
-        }
-    }
-
-    public class ProductRequestModelForUpdate
-    {
-        public string Label { get; set; } = "";
-        public string Description { get; set; } = "";
-        public decimal Price { get; set; }
-        public bool Visible { get; set; }
-        public int Quantity { get; set; }
+        public decimal? Price { get; set; }
+        public bool? Visible { get; set; }
+        public int? Quantity { get; set; }
         public string? CategoryId { get; set; }
 
         public bool ValideFields()
         {
             return !string.IsNullOrEmpty(Label)
                 && !string.IsNullOrEmpty(Description) &&
-                Price > 0;
+                Price > 0 &&
+                Quantity.HasValue &&
+                Price.HasValue &&
+                Visible.HasValue;
         }
     }
 }

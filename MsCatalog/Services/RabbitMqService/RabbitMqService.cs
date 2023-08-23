@@ -6,6 +6,7 @@ using RabbitMQ.Client.Events;
 using MsCatalog.Models;
 using RabbitMQ.Client;
 using System.Threading.Channels;
+using System;
 
 namespace MsCatalog.Services.RabbitMqService
 {
@@ -21,6 +22,7 @@ namespace MsCatalog.Services.RabbitMqService
         {
             var body = eventArgs.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
+            Console.WriteLine("Meesage received in catalog.ingredients.stock" + message);
             RequestStockModel result = JsonConvert.DeserializeObject<RequestStockModel>(message);
             if (result == null)
             {
@@ -39,6 +41,7 @@ namespace MsCatalog.Services.RabbitMqService
         {
             var body = eventArgs.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
+            Console.WriteLine("Meesage received in catalog.products.sold" + message);
             RequestSoldModel result = JsonConvert.DeserializeObject<RequestSoldModel>(message);
             if (result == null)
             {

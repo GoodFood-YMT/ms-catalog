@@ -76,24 +76,30 @@ if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
 
         RabbitMqService srv = new RabbitMqService(scopedDbContext);
 
-        channel.QueueDeclare("catalog.ingredients.stock", exclusive: false);
+        channel.QueueDeclare("catalog.ingredients.stock", 
+                             durable: false,
+                             exclusive: false,
+                             autoDelete: false,
+                             arguments: null);
         Console.WriteLine("Listening catalog.ingredients.stock queue");
         var consumerStock = new EventingBasicConsumer(channel);
         consumerStock.Received += (model, eventArgs) =>
         {
-            var scope = app.Services.CreateScope();
-            var scopedDbContext = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-
-            RabbitMqService srv = new RabbitMqService(scopedDbContext);
+            Console.WriteLine("Received" + eventArgs);
             srv.ListenToStockIngredients(eventArgs);
         };
         channel.BasicConsume(queue: "catalog.ingredients.stock", autoAck: true, consumer: consumerStock);
 
-        channel.QueueDeclare("catalog.products.sold", exclusive: false);
+        channel.QueueDeclare("catalog.products.sold",
+                             durable: false,
+                             exclusive: false,
+                             autoDelete: false,
+                             arguments: null);
         Console.WriteLine("Listening catalog.products.sold queue");
         var consumerSold = new EventingBasicConsumer(channel);
         consumerSold.Received += (model, eventArgs) =>
         {
+            Console.WriteLine("Received" + eventArgs);
             srv.ListenToSoldProducts(eventArgs);
         };
         channel.BasicConsume(queue: "catalog.products.sold", autoAck: true, consumer: consumerSold);

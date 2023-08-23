@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MsCatalog.Controllers
 {
-    [Route("catalog/{RestaurantId}/ingredients")]
+    [Route("catalog/ingredients")]
     [ApiController]
     public class IngredientsController : Controller
     {
@@ -30,8 +30,13 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetIngredients(string RestaurantId, [FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetIngredients([FromQuery] PaginationFilter filter)
         {
+            string RestaurantId = Request.Headers["RestaurantID"].ToString();
+            if (string.IsNullOrEmpty(RestaurantId))
+            {
+                return BadRequest();
+            }
             string? cachedIngredients = await _redis.GetStringAsync($"restaurant:{RestaurantId}:ingredient:all");
             List<IngredientDto>? ingredients = new List<IngredientDto>();
 
@@ -81,14 +86,15 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateIngredient(string RestaurantId, IngredientModel request)
+        public async Task<IActionResult> CreateIngredient(IngredientModel request)
         {
-            if (string.IsNullOrEmpty(request.Name))
+            string RestaurantId = Request.Headers["RestaurantID"].ToString();
+            if (string.IsNullOrEmpty(RestaurantId) || !request.ValidFields())
             {
                 return BadRequest();
             }
 
-            Ingredient newIngredient = new(request.Name, request.Quantity, RestaurantId);
+            Ingredient newIngredient = new(request.Name, request.Quantity.Value, RestaurantId);
             _context.Ingredients.Add(newIngredient);
             await _context.SaveChangesAsync();
 
@@ -105,8 +111,14 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetIngredientById(string RestaurantId, string id)
+        public async Task<IActionResult> GetIngredientById(string id)
         {
+            string RestaurantId = Request.Headers["RestaurantID"].ToString();
+            if (string.IsNullOrEmpty(RestaurantId))
+            {
+                return BadRequest();
+            }
+
             string? cachedIngredient = await _redis.GetStringAsync($"restaurant:{RestaurantId}:ingredient:{id}");
             IngredientDto? ingredient = null;
 
@@ -135,12 +147,13 @@ namespace MsCatalog.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateIngredient(string RestaurantId, string id, [FromBody] IngredientModel request)
+        public async Task<IActionResult> UpdateIngredient(string id, [FromBody] IngredientModel request)
         {
+            string RestaurantId = Request.Headers["RestaurantID" ].ToString();
 
-            if(string.IsNullOrEmpty(request.Name))
+            if(string.IsNullOrEmpty(RestaurantId))
             {
-                return BadRequest(request);
+                return BadRequest();
             }
 
             Ingredient? currentIgredient = await _context.Ingredients.Where(i => i.Id.ToString() == id && i.RestaurantId == RestaurantId).FirstOrDefaultAsync();
@@ -150,9 +163,8 @@ namespace MsCatalog.Controllers
                 return NotFound();
             }
 
-            currentIgredient.Name = request.Name;
-            currentIgredient.Quantity = request.Quantity;
-            currentIgredient.RestaurantId = RestaurantId;
+            if (!string.IsNullOrEmpty(request.Name)){ currentIgredient.Name = request.Name; }
+            if (request.Quantity.HasValue){ currentIgredient.Quantity = request.Quantity.Value; }
             await _context.SaveChangesAsync();
 
             IngredientDto ingredientDto = new() { Id = currentIgredient.Id.ToString(), Name = currentIgredient.Name, Quantity = currentIgredient.Quantity, RestaurantId = currentIgredient.RestaurantId };
@@ -165,8 +177,15 @@ namespace MsCatalog.Controllers
     }
 
     public class IngredientModel {
-        public string Name { get; set; } = "";
-        public int Quantity { get; set; }
-    }
 
+        public string Name { get; set; } = "";
+        public int? Quantity { get; set; }
+
+        public bool ValidFields()
+        {
+            return 
+                !string.IsNullOrEmpty(Name) &&
+                Quantity.HasValue;
+        }
+    }
 }

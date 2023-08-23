@@ -33,6 +33,11 @@ namespace MsCatalog.Controllers
         [HttpGet]
         public async Task<IActionResult> GetIngredientsByProduct(string productId, [FromQuery] PaginationFilter filter)
         {
+            string RestaurantID = Request.Headers["RestaurantID"].ToString();
+            if (string.IsNullOrEmpty(RestaurantID))
+            {
+                return BadRequest();
+            }
             string cachedProductIngredients = await _redis.GetStringAsync($"product:{productId}:ingredient:all");
             List<ProductsIngredientsDto>? productIngredients = new List<ProductsIngredientsDto>();
 
@@ -44,11 +49,14 @@ namespace MsCatalog.Controllers
             if (string.IsNullOrEmpty(cachedProductIngredients))
             {
                 productIngredients = await _context.ProductsIngredients
-                    .Where(p => p.ProductId == productId)
+                    .Include(p => p.Product)
+                    .Include(p => p.Ingredient)
+                    .Where(p => p.ProductId == productId && p.Product.RestaurantId == RestaurantID)                
                     .Select(p => new ProductsIngredientsDto { 
                         ProductId = p.ProductId, 
                         IngredientId = p.IngredientId, 
-                        Quantity = p.Quantity 
+                        Quantity = p.Quantity,
+                        Name = p.Ingredient.Name,
                     }).ToListAsync();
 
                 await _redis.SetStringAsync($"product:{productId}:ingredient:all", JsonConvert.SerializeObject(productIngredients));
@@ -65,7 +73,7 @@ namespace MsCatalog.Controllers
             }
 
             productIngredients = JsonConvert.DeserializeObject<List<ProductsIngredientsDto>>(cachedProductIngredients)
-                    .Select(p => new ProductsIngredientsDto { ProductId = p.ProductId, IngredientId = p.IngredientId, Quantity = p.Quantity })
+                    .Select(p => new ProductsIngredientsDto { ProductId = p.ProductId, IngredientId = p.IngredientId, Quantity = p.Quantity, Name = p.Name })
                     .ToList();
 
             totalRecords = productIngredients.Count();
@@ -91,7 +99,8 @@ namespace MsCatalog.Controllers
             {
                 productIngredient = await _context.ProductsIngredients
                     .Where((p) => p.ProductId == productId && p.IngredientId == ingredientId)
-                    .Select(p => new ProductsIngredientsDto { ProductId = p.ProductId, IngredientId = p.IngredientId, Quantity = p.Quantity })
+                    .Include(p => p.Ingredient)
+                    .Select(p => new ProductsIngredientsDto { ProductId = p.ProductId, IngredientId = p.IngredientId, Quantity = p.Quantity, Name = p.Ingredient.Name })
                     .FirstOrDefaultAsync();
 
                 await _redis.SetStringAsync(key, JsonConvert.SerializeObject(productIngredient));
@@ -123,7 +132,12 @@ namespace MsCatalog.Controllers
                     await _context.ProductsIngredients.AddAsync(productIngredient);
                     await _context.SaveChangesAsync();
 
-                    ProductsIngredientsDto result = new ProductsIngredientsDto { IngredientId= ingredientId, ProductId = productId, Quantity = request.Quantity };
+                    ProductsIngredientsDto result = new ProductsIngredientsDto { 
+                        IngredientId= ingredientId, 
+                        ProductId = productId, 
+                        Quantity = request.Quantity, 
+                        Name = currentIngredient.Name 
+                    };
 
                     await _redis.SetStringAsync($"product:{productId}:ingredient:all", "");
 
@@ -139,11 +153,19 @@ namespace MsCatalog.Controllers
             
             if(await _context.ProductsIngredients.AnyAsync((p) => p.ProductId == productId && p.IngredientId == ingredientId))
             {
-                ProductsIngredients? currentProductIngredients = await _context.ProductsIngredients.Where((p) => p.ProductId == productId && p.IngredientId == ingredientId).FirstOrDefaultAsync();
+                ProductsIngredients? currentProductIngredients = await _context.ProductsIngredients
+                    .Where((p) => p.ProductId == productId && p.IngredientId == ingredientId)
+                    .Include(p => p.Ingredient)
+                    .FirstOrDefaultAsync();
                 currentProductIngredients!.Quantity = request.Quantity;
                 await _context.SaveChangesAsync();
 
-                ProductsIngredientsDto result = new ProductsIngredientsDto { IngredientId = ingredientId, ProductId = productId, Quantity = request.Quantity };
+                ProductsIngredientsDto result = new ProductsIngredientsDto { 
+                    IngredientId = ingredientId, 
+                    ProductId = productId, 
+                    Quantity = request.Quantity, 
+                    Name = currentProductIngredients.Ingredient.Name
+                };
 
                 await _redis.SetStringAsync($"product:{productId}:ingredient:all", "");
                 await _redis.SetStringAsync($"product:{productId}:ingredient:{ingredientId}", "");
@@ -157,22 +179,28 @@ namespace MsCatalog.Controllers
         [HttpDelete("{ingredientId}")]
         public async Task<IActionResult> Delete(string productId, string ingredientId)
         {
-            if (await _context.ProductsIngredients.AnyAsync((p) => p.ProductId == productId && p.IngredientId == ingredientId))
+            ProductsIngredients? currentProductIngredients = await _context.ProductsIngredients
+                    .Where((p) => p.ProductId == productId && p.IngredientId == ingredientId)
+                    .Include(p => p.Ingredient)
+                    .FirstOrDefaultAsync();
+
+            if (currentProductIngredients == null)
             {
-                ProductsIngredients? currentProductIngredients = await _context.ProductsIngredients.Where((p) => p.ProductId == productId && p.IngredientId == ingredientId).FirstOrDefaultAsync();
-            
-                _context.ProductsIngredients.Remove(currentProductIngredients!);
-                await _context.SaveChangesAsync();
-
-                await _redis.SetStringAsync($"product:{productId}:ingredient:all", "");
-                await _redis.SetStringAsync($"product:{productId}:ingredient:{ingredientId}", "");
-
-                ProductsIngredientsDto result = new ProductsIngredientsDto { IngredientId = ingredientId, ProductId = productId };
-
-                return Ok(result);
+                return NotFound();
             }
+            _context.ProductsIngredients.Remove(currentProductIngredients!);
+            await _context.SaveChangesAsync();
 
-            return BadRequest();
+            await _redis.SetStringAsync($"product:{productId}:ingredient:all", "");
+            await _redis.SetStringAsync($"product:{productId}:ingredient:{ingredientId}", "");
+
+            ProductsIngredientsDto result = new ProductsIngredientsDto
+            {
+                IngredientId = ingredientId,
+                ProductId = productId,
+                Name = currentProductIngredients.Ingredient.Name
+            };
+            return Ok(result);
         }
     }
 

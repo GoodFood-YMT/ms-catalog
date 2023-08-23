@@ -21,6 +21,7 @@ namespace MsCatalog.Models
     {
         public string ProductId { get; set; }
         public string IngredientId { get; set; }
+        public string Name { get; set; }
         public int Quantity { get; set; }
     }
 
