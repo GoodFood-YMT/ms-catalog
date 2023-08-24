@@ -76,11 +76,7 @@ if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
 
         RabbitMqService srv = new RabbitMqService(scopedDbContext);
 
-        channel.QueueDeclare("catalog.ingredients.stock", 
-                             durable: false,
-                             exclusive: false,
-                             autoDelete: false,
-                             arguments: null);
+        channel.QueueDeclare("catalog.ingredients.stock");
         Console.WriteLine("Listening catalog.ingredients.stock queue");
         var consumerStock = new EventingBasicConsumer(channel);
         consumerStock.Received += (model, eventArgs) =>
@@ -90,11 +86,7 @@ if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
         };
         channel.BasicConsume(queue: "catalog.ingredients.stock", autoAck: true, consumer: consumerStock);
 
-        channel.QueueDeclare("catalog.products.sold",
-                             durable: false,
-                             exclusive: false,
-                             autoDelete: false,
-                             arguments: null);
+        channel.QueueDeclare("catalog.products.sold");
         Console.WriteLine("Listening catalog.products.sold queue");
         var consumerSold = new EventingBasicConsumer(channel);
         consumerSold.Received += (model, eventArgs) =>
