@@ -75,6 +75,8 @@ if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
         var scopeRMQ = app.Services.CreateScope();
         var scopedDbContext = scopeRMQ.ServiceProvider.GetRequiredService<ApiDbContext>();
 
+        RabbitMqService srv = new RabbitMqService(scopedDbContext);
+
         // Ingredient Stock
         channel.QueueDeclare("catalog.ingredients.stock", durable: true, autoDelete: false);
         Console.WriteLine("Listening catalog.ingredients.stock queue");
