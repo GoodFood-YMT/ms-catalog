@@ -1,12 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using MsCatalog.Data;
 using MsCatalog.Services.UriService;
-using MsCatalog.Services.RabbitMqService;
-using RabbitMQ.Client.Events;
-using RabbitMQ.Client;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+using MsCatalog.Extensions;
+using MsCatalog.Listeners.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +36,9 @@ builder.Services.AddSingleton<IUriService>(o =>
     return new UriService(uri);
 });
 
+builder.Services.AddSingleton<IngredientsStockListener>();
+builder.Services.AddSingleton<ProductsSoldListener>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -57,60 +56,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
-{
-    Console.WriteLine(builder.Configuration["RabbitMQ:Hostname"]);
-    Console.WriteLine(builder.Configuration["RabbitMQ:Username"]);
-    Console.WriteLine(builder.Configuration["RabbitMQ:Username"]);
-    var factory = new ConnectionFactory
-    {
-        HostName = builder.Configuration["RabbitMQ:Hostname"],
-        UserName = builder.Configuration["RabbitMQ:Username"],
-        Password = builder.Configuration["RabbitMQ:Password"]
-    };
-
-    var connection = factory.CreateConnection();
-    var channel = connection.CreateModel();
-    try {
-        var scopeRMQ = app.Services.CreateScope();
-        var scopedDbContext = scopeRMQ.ServiceProvider.GetRequiredService<ApiDbContext>();
-
-        RabbitMqService srv = new RabbitMqService(scopedDbContext);
-
-        // Ingredient Stock
-        channel.QueueDeclare("catalog.ingredients.stock", durable: true, autoDelete: false);
-        Console.WriteLine("Listening catalog.ingredients.stock queue");
-        var consumerStock = new EventingBasicConsumer(channel);
-        consumerStock.Received += (model, eventArgs) =>
-        {
-            Console.WriteLine("Received" + eventArgs);
-            srv.ListenToStockIngredients(eventArgs);
-        };
-        channel.BasicConsume(queue: "catalog.ingredients.stock", autoAck: true, consumer: consumerStock);
-
-        // Product Stock
-        channel.QueueDeclare("catalog.products.sold", durable: true, autoDelete: false);
-        Console.WriteLine("Listening catalog.products.sold queue");
-        var consumerSold = new EventingBasicConsumer(channel);
-        consumerSold.Received += (model, eventArgs) =>
-        {
-            Console.WriteLine("Received" + eventArgs);
-            srv.ListenToSoldProducts(eventArgs);
-        };
-        channel.BasicConsume(queue: "catalog.products.sold", autoAck: true, consumer: consumerSold);
-    }
-    catch(Exception e) {
-        Console.WriteLine("Error while doing RabbitMQ stuff : " + e.Message);
-    }
-    finally {
-        if (connection != null)
-            connection.Dispose();
-        
-        if (channel != null)
-            channel.Dispose();
-    }
-}
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -119,7 +64,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
-
+app.UseRabbitListeners();
 app.UseAuthorization();
 
 app.MapControllers();
