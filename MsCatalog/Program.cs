@@ -64,7 +64,11 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
-app.UseRabbitListeners();
+if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
+{
+    app.UseRabbitListeners();
+}
+
 app.UseAuthorization();
 
 app.MapControllers();
