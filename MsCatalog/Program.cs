@@ -68,15 +68,15 @@ if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
         UserName = builder.Configuration["RabbitMQ:Username"],
         Password = builder.Configuration["RabbitMQ:Password"]
     };
-    using (var connection = factory.CreateConnection())
-    using (var channel = connection.CreateModel())
-    {
+
+    var connection = factory.CreateConnection();
+    var channel = connection.CreateModel();
+    try {
         var scopeRMQ = app.Services.CreateScope();
         var scopedDbContext = scopeRMQ.ServiceProvider.GetRequiredService<ApiDbContext>();
 
-        RabbitMqService srv = new RabbitMqService(scopedDbContext);
-
-        channel.QueueDeclare("catalog.ingredients.stock");
+        // Ingredient Stock
+        channel.QueueDeclare("catalog.ingredients.stock", durable: true, autoDelete: false);
         Console.WriteLine("Listening catalog.ingredients.stock queue");
         var consumerStock = new EventingBasicConsumer(channel);
         consumerStock.Received += (model, eventArgs) =>
@@ -86,7 +86,8 @@ if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
         };
         channel.BasicConsume(queue: "catalog.ingredients.stock", autoAck: true, consumer: consumerStock);
 
-        channel.QueueDeclare("catalog.products.sold");
+        // Product Stock
+        channel.QueueDeclare("catalog.products.sold", durable: true, autoDelete: false);
         Console.WriteLine("Listening catalog.products.sold queue");
         var consumerSold = new EventingBasicConsumer(channel);
         consumerSold.Received += (model, eventArgs) =>
@@ -95,6 +96,16 @@ if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
             srv.ListenToSoldProducts(eventArgs);
         };
         channel.BasicConsume(queue: "catalog.products.sold", autoAck: true, consumer: consumerSold);
+    }
+    catch(Exception e) {
+        Console.WriteLine("Error while doing RabbitMQ stuff : " + e.Message);
+    }
+    finally {
+        if (connection != null)
+            connection.Dispose();
+        
+        if (channel != null)
+            channel.Dispose();
     }
 }
 
