@@ -414,17 +414,17 @@ D:\CESI\MAALSI\CUBES\Projet\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6
 D:\CESI\MAALSI\CUBES\Projet\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6.0\MsCatalog.IntegrationTests.genruntimeconfig.cache
 D:\CESI\MAALSI\CUBES\Projet\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6.0\ref\MsCatalog.IntegrationTests.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\CoverletSourceRootsMapping
-C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\testhost.exe
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\testhost.dll
-C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
-C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\xunit.runner.reporters.netcoreapp10.dll
-C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\xunit.runner.utility.netcoreapp10.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\MsCatalog.deps.json
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\MsCatalog.runtimeconfig.json
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\appsettings.Development.json
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\appsettings.json
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\MsCatalog.exe
+C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\testhost.exe
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\MvcTestingAppManifest.json
+C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
+C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\xunit.runner.reporters.netcoreapp10.dll
+C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\xunit.runner.utility.netcoreapp10.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\MsCatalog.IntegrationTests.deps.json
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\MsCatalog.IntegrationTests.runtimeconfig.json
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\MsCatalog.IntegrationTests.dll
@@ -743,6 +743,7 @@ C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.Integration
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\NuGet.Frameworks.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\RabbitMQ.Client.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\StackExchange.Redis.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
@@ -753,6 +754,7 @@ C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.Integration
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\System.IO.Pipelines.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\System.Security.Permissions.dll
+C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\System.Threading.Channels.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\System.Windows.Extensions.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\xunit.abstractions.dll
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\xunit.assert.dll
@@ -843,5 +845,3 @@ C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.Integration
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6.0\MsCatalog.IntegrationTests.pdb
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6.0\MsCatalog.IntegrationTests.genruntimeconfig.cache
 C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\obj\Debug\net6.0\ref\MsCatalog.IntegrationTests.dll
-C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\RabbitMQ.Client.dll
-C:\Users\karak\Documents\Apps\good-food-project\ms-catalog\MsCatalog.IntegrationTests\bin\Debug\net6.0\System.Threading.Channels.dll

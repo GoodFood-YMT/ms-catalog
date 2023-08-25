@@ -2,16 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using MsCatalog.Data;
 using MsCatalog.Models;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace MsCatalog.Listeners.RabbitMQ;
 
 public class IngredientsStockListener : RabbitMQListener
 {
     private readonly ApiDbContext _context;
+    private readonly IDistributedCache _redis;
 
-    public IngredientsStockListener(ApiDbContext context) : base("catalog.ingredients.stock")
+    public IngredientsStockListener(ApiDbContext context, IDistributedCache redis) : base("catalog.ingredients.stock")
     {
         this._context = context;
+        _redis = redis;
     }
 
     protected override async Task Handle(string message)
@@ -29,6 +32,8 @@ public class IngredientsStockListener : RabbitMQListener
         {
             ingredient.Quantity += result.add;
             _context.SaveChanges();
+            await _redis.SetStringAsync($"restaurant:{result.restaurantId}:ingredient:all", "");
+            await _redis.SetStringAsync($"restaurant:{result.restaurantId}:ingredient:{result.ingredientId}", "");
         }
     }
 }
