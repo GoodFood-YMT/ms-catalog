@@ -270,7 +270,7 @@ namespace MsCatalog.Controllers
                 product.Description,
                 product.Price.Value,
                 product.Visible.Value, 
-                product.Quantity.Value, 
+               0, 
                 RestaurantId);
 
             if (product.CategoryId != null)
@@ -359,7 +359,6 @@ namespace MsCatalog.Controllers
             if (!string.IsNullOrEmpty(product.Description)) { currentProduct.Description = product.Description; }
             if (product.Price.HasValue) { currentProduct.Price = product.Price.Value; }
             if (product.Visible.HasValue) { currentProduct.Visible = product.Visible.Value; }
-            if (product.Quantity.HasValue) { currentProduct.Quantity = product.Quantity.Value; }
 
             if (product.CategoryId != null)
             {
@@ -400,7 +399,6 @@ namespace MsCatalog.Controllers
         public string Description { get; set; } = "";
         public decimal? Price { get; set; }
         public bool? Visible { get; set; }
-        public int? Quantity { get; set; }
         public string? CategoryId { get; set; }
 
         public bool ValideFields()
@@ -408,7 +406,6 @@ namespace MsCatalog.Controllers
             return !string.IsNullOrEmpty(Label)
                 && !string.IsNullOrEmpty(Description) &&
                 Price > 0 &&
-                Quantity.HasValue &&
                 Price.HasValue &&
                 Visible.HasValue;
         }

@@ -3,6 +3,7 @@ using MsCatalog.Data;
 using MsCatalog.Services.UriService;
 using MsCatalog.Extensions;
 using MsCatalog.Listeners.RabbitMQ;
+using MsCatalog.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,7 @@ builder.Services.AddSingleton<IUriService>(o =>
 
 builder.Services.AddSingleton<IngredientsStockListener>();
 builder.Services.AddSingleton<ProductsSoldListener>();
+builder.Services.AddSingleton<StockService>();
 
 builder.Services.AddControllers();
 

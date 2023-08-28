@@ -3,6 +3,7 @@ using MsCatalog.Data;
 using MsCatalog.Models;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
+using MsCatalog.Services;
 
 namespace MsCatalog.Listeners.RabbitMQ;
 
@@ -10,11 +11,13 @@ public class IngredientsStockListener : RabbitMQListener
 {
     private readonly ApiDbContext _context;
     private readonly IDistributedCache _redis;
+    private StockService _stockService;
 
-    public IngredientsStockListener(ApiDbContext context, IDistributedCache redis) : base("catalog.ingredients.stock")
+    public IngredientsStockListener(ApiDbContext context, IDistributedCache redis, StockService stockService) : base("catalog.ingredients.stock")
     {
         this._context = context;
         _redis = redis;
+        _stockService = stockService;
     }
 
     protected override async Task Handle(string message)
@@ -34,6 +37,7 @@ public class IngredientsStockListener : RabbitMQListener
             _context.SaveChanges();
             await _redis.SetStringAsync($"restaurant:{result.restaurantId}:ingredient:all", "");
             await _redis.SetStringAsync($"restaurant:{result.restaurantId}:ingredient:{result.ingredientId}", "");
+            await _stockService.UpdateStockProductsByIngredient(ingredient.Id.ToString());
         }
     }
 }
