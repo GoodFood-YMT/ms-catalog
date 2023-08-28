@@ -7,6 +7,7 @@ using MsCatalog.Helpers;
 using MsCatalog.Models;
 using MsCatalog.Models.Filters;
 using MsCatalog.Models.Wrappers;
+using MsCatalog.Services;
 using MsCatalog.Services.UriService;
 using Newtonsoft.Json;
 
@@ -21,13 +22,15 @@ namespace MsCatalog.Controllers
         private readonly ILogger _logger;
         private readonly IDistributedCache _redis;
         private readonly IUriService _uriService;
+        private readonly StockService _stockService;
 
-        public ProductIngredientsController(ILogger<Category> logger, ApiDbContext context, IDistributedCache redis, IUriService uriService)
+        public ProductIngredientsController(ILogger<Category> logger, ApiDbContext context, IDistributedCache redis, IUriService uriService, StockService stockService)
         {
             _logger = logger;
             _context = context;
             _redis = redis;
             _uriService = uriService;
+            _stockService = stockService;
         }
 
         [HttpGet]
@@ -141,6 +144,8 @@ namespace MsCatalog.Controllers
 
                     await _redis.SetStringAsync($"product:{productId}:ingredient:all", "");
 
+                    await _stockService.UpdateProductStock(productId);
+
                     return Ok(result);
                 }
             }
@@ -169,6 +174,7 @@ namespace MsCatalog.Controllers
 
                 await _redis.SetStringAsync($"product:{productId}:ingredient:all", "");
                 await _redis.SetStringAsync($"product:{productId}:ingredient:{ingredientId}", "");
+                await _stockService.UpdateProductStock(productId);
 
                 return Ok(result);
             }
@@ -193,6 +199,7 @@ namespace MsCatalog.Controllers
 
             await _redis.SetStringAsync($"product:{productId}:ingredient:all", "");
             await _redis.SetStringAsync($"product:{productId}:ingredient:{ingredientId}", "");
+            await _stockService.UpdateProductStock(productId);
 
             ProductsIngredientsDto result = new ProductsIngredientsDto
             {
