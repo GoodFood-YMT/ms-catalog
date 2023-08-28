@@ -85,9 +85,14 @@ namespace MsCatalog.Controllers
             return Ok(pagedReponse);
         }
 
-        [HttpGet("{RestaurantId}/products/all")]
-        public async Task<IActionResult> GetAllProducts(string RestaurantId, [FromQuery] PaginationFilter filter, string? CategoryId)
+        [HttpGet("products/all")]
+        public async Task<IActionResult> GetAllProducts([FromQuery] PaginationFilter filter, string? CategoryId)
         {
+            string RestaurantId = Request.Headers["RestaurantID"].ToString();
+            if (string.IsNullOrEmpty(RestaurantId))
+            {
+                return BadRequest();
+            }
             List<ProductsDto> products = new();
             PagedResponse<List<ProductsDto>> pagedReponse;
             int totalRecords = 0;
