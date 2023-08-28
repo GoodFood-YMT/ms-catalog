@@ -18,30 +18,44 @@ namespace MsCatalog.Services
 
         public async Task UpdateProductStock(string productId)
         {
-            Product? product = await _context.Products.Where(p => p.Id.ToString() == productId).FirstOrDefaultAsync();
-            if (product == null) return;
-            
-            List<ProductsIngredients> productsIngredients = await _context.ProductsIngredients.Where(pi => pi.ProductId == productId).ToListAsync();
-            List<string> ids = productsIngredients.Select(i => i.IngredientId).ToList();
-            List<Ingredient> ingredients = await _context.Ingredients.Where(i => ids.Contains(i.Id.ToString())).ToListAsync();
-            int stock = 0;
-            foreach (ProductsIngredients pi in productsIngredients)
+            try
             {
-                Ingredient? ingredient = ingredients.Where(i => i.Id.ToString() == pi.IngredientId.ToString()).FirstOrDefault();
-                if (ingredient == null) continue;
-                int tempStock = (int)Math.Ceiling((decimal)(ingredient.Quantity / pi.Quantity));
-                if(tempStock < stock) stock = tempStock;
+                Product? product = await _context.Products.Where(p => p.Id.ToString() == productId).FirstOrDefaultAsync();
+                Console.WriteLine(product);
+                if (product == null) return;
+                Console.WriteLine(product);
 
+                List<ProductsIngredients> productsIngredients = await _context.ProductsIngredients.Where(pi => pi.ProductId == productId).ToListAsync();
+                Console.WriteLine(productsIngredients.Count);
+                List<string> ids = productsIngredients.Select(i => i.IngredientId).ToList();
+                Console.WriteLine(ids.Count);
+                List<Ingredient> ingredients = await _context.Ingredients.Where(i => ids.Contains(i.Id.ToString())).ToListAsync();
+                Console.WriteLine(ingredients.Count);
+                int stock = 0;
+                foreach (ProductsIngredients pi in productsIngredients)
+                {
+                    Ingredient? ingredient = ingredients.Where(i => i.Id.ToString() == pi.IngredientId.ToString()).FirstOrDefault();
+                    if (ingredient == null) continue;
+                    int tempStock = (int)Math.Ceiling((decimal)(ingredient.Quantity / pi.Quantity));
+                    Console.WriteLine("tempStock: " + tempStock);
+                    if (tempStock < stock) stock = tempStock;
+
+                }
+                Console.WriteLine(stock);
+                product.Quantity = stock;
+                await _context.SaveChangesAsync();
+
+                await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product:all", string.Empty);
+                await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-visible:all", string.Empty);
+                await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-inStock:all", string.Empty);
+                await _redis.SetStringAsync($"product-inStock:all", string.Empty);
+                await _redis.SetStringAsync($"product-visible:all", string.Empty);
+                await _redis.SetStringAsync($"product:{product.Id}", string.Empty);
             }
-            product.Quantity = stock;
-            _context.SaveChanges();
-
-            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product:all", string.Empty);
-            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-visible:all", string.Empty);
-            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-inStock:all", string.Empty);
-            await _redis.SetStringAsync($"product-inStock:all", string.Empty);
-            await _redis.SetStringAsync($"product-visible:all", string.Empty);
-            await _redis.SetStringAsync($"product:{product.Id}", string.Empty);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }         
         }
 
         public async Task UpdateStockProductsByIngredient(string ingredientId)
