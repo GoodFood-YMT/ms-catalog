@@ -30,15 +30,15 @@ public class ProductsSoldListener : RabbitMQListener
         Product? product = await _context.Products.Where(p => p.RestaurantId == result.restaurantId && p.Id.ToString() == result.productId).FirstOrDefaultAsync();
         if (product != null)
         {
-            List<ProductsIngredients> ingredients = await _context.ProductsIngredients.Where(p => p.ProductId == result.productId).ToListAsync();
+            List<ProductsIngredients> productsIngredients = await _context.ProductsIngredients.Where(p => p.ProductId == result.productId).ToListAsync();
 
-            foreach(ProductsIngredients p in ingredients)
+            foreach(ProductsIngredients p in productsIngredients)
             {
-                Ingredient? item = await _context.Ingredients.Where(i => i.Id.ToString() == p.IngredientId).FirstOrDefaultAsync();
-                if (item != null)
+                Ingredient? ingredient = await _context.Ingredients.Where(i => i.Id.ToString() == p.IngredientId).FirstOrDefaultAsync();
+                if (ingredient != null)
                 {
-                    item.Quantity -= result.quantity;
-                    await _stockService.UpdateStockProductsByIngredient(item.Id.ToString());
+                    ingredient.Quantity -= result.quantity * p.Quantity;
+                    await _stockService.UpdateStockProductsByIngredient(ingredient.Id.ToString());
                 }
             }           
             _context.SaveChanges();
