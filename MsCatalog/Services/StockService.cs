@@ -31,7 +31,7 @@ namespace MsCatalog.Services
                 Console.WriteLine(ids.Count);
                 List<Ingredient> ingredients = await _context.Ingredients.Where(i => ids.Contains(i.Id.ToString())).ToListAsync();
                 Console.WriteLine(ingredients.Count);
-                int stock = 0;
+                int stock = int.MaxValue;
                 foreach (ProductsIngredients pi in productsIngredients)
                 {
                     Ingredient? ingredient = ingredients.Where(i => i.Id.ToString() == pi.IngredientId.ToString()).FirstOrDefault();
@@ -42,7 +42,7 @@ namespace MsCatalog.Services
 
                 }
                 Console.WriteLine(stock);
-                product.Quantity = stock;
+                product.Quantity = stock == int.MaxValue ? 0 : stock;
                 await _context.SaveChangesAsync();
 
                 await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product:all", string.Empty);
