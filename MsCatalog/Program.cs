@@ -53,7 +53,9 @@ builder.Services.AddCors(options =>
         {
             builder.AllowAnyOrigin()
             .AllowAnyOrigin()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
         });
 });
 builder.Services.AddSwaggerGen();
