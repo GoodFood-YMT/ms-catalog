@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using MsCatalog.Data;
@@ -8,12 +9,12 @@ using MsCatalog.Models.Filters;
 using MsCatalog.Models.Wrappers;
 using MsCatalog.Services.UriService;
 using Newtonsoft.Json;
-using System.Text;
 
 namespace MsCatalog.Controllers
 {
     [Route("catalog/categories")]
     [ApiController]
+    [EnableCors]
     public class CategoriesController : Controller
     {
 
