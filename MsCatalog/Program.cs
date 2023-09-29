@@ -44,6 +44,18 @@ builder.Services.AddSingleton<StockService>();
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
+
+//Code rajouter pour le CORS 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+            .AllowAnyOrigin()
+            .AllowAnyMethod();
+        });
+});
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -72,6 +84,9 @@ if (!builder.Environment.EnvironmentName.Equals("IntegrationTest"))
 }
 
 app.UseAuthorization();
+
+// Using CORS
+app.UseCors();
 
 app.MapControllers();
 
