@@ -14,7 +14,6 @@ namespace MsCatalog.Controllers
 {
     [Route("catalog/categories")]
     [ApiController]
-    [EnableCors]
     public class CategoriesController : Controller
     {
 
