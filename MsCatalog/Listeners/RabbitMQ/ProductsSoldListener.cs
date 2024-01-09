@@ -46,6 +46,7 @@ public class ProductsSoldListener : RabbitMQListener
             await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product:all", string.Empty);
             await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-visible:all", string.Empty);
             await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-inStock:all", string.Empty);
+            await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:ingredient:all", string.Empty);
             await _redis.SetStringAsync($"product-inStock:all", string.Empty);
             await _redis.SetStringAsync($"product-visible:all", string.Empty);
             await _redis.SetStringAsync($"product:{product.Id}", string.Empty);
