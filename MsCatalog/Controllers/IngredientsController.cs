@@ -6,6 +6,7 @@ using MsCatalog.Helpers;
 using MsCatalog.Models;
 using MsCatalog.Models.Filters;
 using MsCatalog.Models.Wrappers;
+using MsCatalog.Services;
 using MsCatalog.Services.UriService;
 using Newtonsoft.Json;
 
@@ -20,13 +21,15 @@ namespace MsCatalog.Controllers
         private readonly ILogger _logger;
         private readonly IDistributedCache _redis;
         private readonly IUriService _uriService;
+        private readonly StockService _stockService;
 
-        public IngredientsController(ILogger<Ingredient> logger, ApiDbContext context, IDistributedCache redis, IUriService uriService)
+        public IngredientsController(ILogger<Ingredient> logger, ApiDbContext context, IDistributedCache redis, IUriService uriService, StockService stockService)
         {
             _logger = logger;
             _context = context;
             _redis = redis;
             _uriService = uriService;
+            _stockService = stockService;
         }
 
         [HttpGet]
@@ -171,6 +174,8 @@ namespace MsCatalog.Controllers
 
             await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:all", "");
             await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:{id}", "");
+
+            await _stockService.UpdateStockProductsByIngredient(id);
 
             return Ok(ingredientDto);
         }
