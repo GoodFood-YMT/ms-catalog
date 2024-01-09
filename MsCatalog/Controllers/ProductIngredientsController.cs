@@ -175,6 +175,7 @@ namespace MsCatalog.Controllers
                 await _redis.SetStringAsync($"product:{productId}:ingredient:all", "");
                 await _redis.SetStringAsync($"product:{productId}:ingredient:{ingredientId}", "");
                 await _stockService.UpdateProductStock(productId);
+                await _stockService.UpdateStockProductsByIngredient(ingredientId);
 
                 return Ok(result);
             }
