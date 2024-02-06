@@ -36,6 +36,7 @@ namespace MsCatalog.Services
                 {
                     Ingredient? ingredient = ingredients.Where(i => i.Id.ToString() == pi.IngredientId.ToString()).FirstOrDefault();
                     if (ingredient == null) continue;
+                    Console.WriteLine($"ingredientQuantity: {ingredient.Quantity} & productIngredientQuantity: {pi.Quantity}");
                     int tempStock = (int)Math.Ceiling((decimal)(ingredient.Quantity / pi.Quantity));
                     Console.WriteLine("tempStock: " + tempStock);
                     if (tempStock < stock) stock = tempStock;
