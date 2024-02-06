@@ -170,6 +170,8 @@ namespace MsCatalog.Controllers
             if (request.Quantity.HasValue){ currentIgredient.Quantity = request.Quantity.Value; }
             await _context.SaveChangesAsync();
 
+            await _context.Entry(currentIgredient).ReloadAsync();
+
             IngredientDto ingredientDto = new() { Id = currentIgredient.Id.ToString(), Name = currentIgredient.Name, Quantity = currentIgredient.Quantity, RestaurantId = currentIgredient.RestaurantId };
 
             await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:all", "");
