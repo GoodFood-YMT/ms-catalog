@@ -22,14 +22,22 @@ namespace MsCatalog.Controllers
         private readonly IDistributedCache _redis;
         private readonly IUriService _uriService;
         private readonly StockService _stockService;
+        private readonly DbContextOptions<ApiDbContext> _contextOption;
 
-        public IngredientsController(ILogger<Ingredient> logger, ApiDbContext context, IDistributedCache redis, IUriService uriService, StockService stockService)
+        public IngredientsController(
+            ILogger<Ingredient> logger, 
+            ApiDbContext context, 
+            IDistributedCache redis, 
+            IUriService uriService, 
+            StockService stockService,
+            DbContextOptions<ApiDbContext> contextOptions)
         {
             _logger = logger;
             _context = context;
             _redis = redis;
             _uriService = uriService;
             _stockService = stockService;
+            _contextOption = contextOptions;
         }
 
         [HttpGet]
@@ -166,11 +174,14 @@ namespace MsCatalog.Controllers
                 return NotFound();
             }
 
-            if (!string.IsNullOrEmpty(request.Name)){ currentIgredient.Name = request.Name; }
-            if (request.Quantity.HasValue){ currentIgredient.Quantity = request.Quantity.Value; }
-            await _context.SaveChangesAsync();
+            using (var context = new ApiDbContext(_contextOption))
+            {
+                if (!string.IsNullOrEmpty(request.Name)) { currentIgredient.Name = request.Name; }
+                if (request.Quantity.HasValue) { currentIgredient.Quantity = request.Quantity.Value; }
 
-            await _context.Entry(currentIgredient).ReloadAsync();
+                await context.SaveChangesAsync();
+                await context.DisposeAsync();
+            }    
 
             IngredientDto ingredientDto = new() { Id = currentIgredient.Id.ToString(), Name = currentIgredient.Name, Quantity = currentIgredient.Quantity, RestaurantId = currentIgredient.RestaurantId };
 
