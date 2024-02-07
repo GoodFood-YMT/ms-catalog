@@ -37,7 +37,7 @@ public class IngredientsStockListener : RabbitMQListener
             _context.SaveChanges();
             await _redis.SetStringAsync($"restaurant:{result.restaurantId}:ingredient:all", "");
             await _redis.SetStringAsync($"restaurant:{result.restaurantId}:ingredient:{result.ingredientId}", "");
-            await _stockService.UpdateStockProductsByIngredient(ingredient.Id.ToString());
+            await _stockService.UpdateStockProductsByIngredient(ingredient.Id.ToString(), _context);
         }
     }
 }

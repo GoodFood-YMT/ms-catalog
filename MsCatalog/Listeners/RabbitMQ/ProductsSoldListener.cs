@@ -38,7 +38,7 @@ public class ProductsSoldListener : RabbitMQListener
                 if (ingredient != null)
                 {
                     ingredient.Quantity -= result.quantity * p.Quantity;
-                    await _stockService.UpdateStockProductsByIngredient(ingredient.Id.ToString());
+                    await _stockService.UpdateStockProductsByIngredient(ingredient.Id.ToString(), _context);
                 }
             }           
             _context.SaveChanges();

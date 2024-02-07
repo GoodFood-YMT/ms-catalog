@@ -181,7 +181,7 @@ namespace MsCatalog.Controllers
             await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:all", "");
             await _redis.SetStringAsync($"restaurant:{RestaurantId}:ingredient:{id}", "");
 
-            await _stockService.UpdateStockProductsByIngredient(id);
+            await _stockService.UpdateStockProductsByIngredient(id, _context);
 
             return Ok(ingredientDto);
         }

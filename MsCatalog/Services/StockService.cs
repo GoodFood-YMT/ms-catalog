@@ -7,29 +7,27 @@ namespace MsCatalog.Services
 {
     public class StockService
     {
-        private ApiDbContext _context;
         private IDistributedCache _redis;
 
-        public StockService(ApiDbContext context, IDistributedCache redis)
+        public StockService(IDistributedCache redis)
         {
-            _context = context;
             _redis = redis;
         }
 
-        public async Task UpdateProductStock(string productId)
+        public async Task UpdateProductStock(string productId, ApiDbContext context)
         {
             try
             {
-                Product? product = await _context.Products.Where(p => p.Id.ToString() == productId).FirstOrDefaultAsync();
+                Product? product = await context.Products.Where(p => p.Id.ToString() == productId).FirstOrDefaultAsync();
                 Console.WriteLine(product);
                 if (product == null) return;
                 Console.WriteLine(product);
 
-                List<ProductsIngredients> productsIngredients = await _context.ProductsIngredients.Where(pi => pi.ProductId == productId).ToListAsync();
+                List<ProductsIngredients> productsIngredients = await context.ProductsIngredients.Where(pi => pi.ProductId == productId).ToListAsync();
                 Console.WriteLine(productsIngredients.Count);
                 List<string> ids = productsIngredients.Select(i => i.IngredientId).ToList();
                 Console.WriteLine(ids.Count);
-                List<Ingredient> ingredients = await _context.Ingredients.Where(i => ids.Contains(i.Id.ToString())).ToListAsync();
+                List<Ingredient> ingredients = await context.Ingredients.Where(i => ids.Contains(i.Id.ToString())).ToListAsync();
                 Console.WriteLine(ingredients.Count);
                 int stock = int.MaxValue;
                 foreach (ProductsIngredients pi in productsIngredients)
@@ -44,7 +42,7 @@ namespace MsCatalog.Services
                 }
                 Console.WriteLine(stock);
                 product.Quantity = stock == int.MaxValue ? 0 : stock;
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
 
                 await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product:all", string.Empty);
                 await _redis.SetStringAsync($"restaurant:{product.RestaurantId}:product-visible:all", string.Empty);
@@ -59,13 +57,13 @@ namespace MsCatalog.Services
             }         
         }
 
-        public async Task UpdateStockProductsByIngredient(string ingredientId)
+        public async Task UpdateStockProductsByIngredient(string ingredientId, ApiDbContext context)
         {
-            List<ProductsIngredients> productsIngredients = await _context.ProductsIngredients.Where(pi => pi.Ingredient.Id.ToString() == ingredientId).ToListAsync();
+            List<ProductsIngredients> productsIngredients = await context.ProductsIngredients.Where(pi => pi.Ingredient.Id.ToString() == ingredientId).ToListAsync();
             
             foreach (ProductsIngredients pi in productsIngredients)
             {
-                await UpdateProductStock(pi.ProductId);
+                await UpdateProductStock(pi.ProductId, context);
             }
         }
     }
