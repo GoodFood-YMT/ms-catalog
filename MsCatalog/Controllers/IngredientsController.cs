@@ -63,9 +63,6 @@ namespace MsCatalog.Controllers
 
                 ingredients = ingredients.Where(i => i.RestaurantId == RestaurantId).ToList();
 
-                ingredients
-                    .ToList();
-
                 return Ok(new
                 {
                     data = ingredients

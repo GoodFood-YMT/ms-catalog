@@ -59,9 +59,6 @@ namespace MsCatalog.Controllers
 
                 await _redis.SetStringAsync($"product:{productId}:ingredient:all", JsonConvert.SerializeObject(productIngredients));
 
-                productIngredients = productIngredients
-                    .ToList();
-
                 return Ok(new
                 {
                     data = productIngredients
