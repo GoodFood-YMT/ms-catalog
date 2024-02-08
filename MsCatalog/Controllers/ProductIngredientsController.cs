@@ -34,7 +34,7 @@ namespace MsCatalog.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetIngredientsByProduct(string productId, [FromQuery] PaginationFilter filter)
+        public async Task<IActionResult> GetIngredientsByProduct(string productId)
         {
             string RestaurantID = Request.Headers["RestaurantID"].ToString();
             if (string.IsNullOrEmpty(RestaurantID))
@@ -47,7 +47,7 @@ namespace MsCatalog.Controllers
             PagedResponse<List<ProductsIngredientsDto>> pagedReponse;
             int totalRecords = 0;
             string route = Request.Path.Value!;
-            PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            PaginationFilter validFilter;
 
             if (string.IsNullOrEmpty(cachedProductIngredients))
             {
@@ -66,6 +66,7 @@ namespace MsCatalog.Controllers
 
                 totalRecords = productIngredients.Count();
 
+                validFilter = new PaginationFilter(1, totalRecords);
                 productIngredients = productIngredients
                     .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                     .Take(validFilter.PageSize)
@@ -81,6 +82,7 @@ namespace MsCatalog.Controllers
 
             totalRecords = productIngredients.Count();
 
+            validFilter = new PaginationFilter(1, totalRecords);
             productIngredients = productIngredients
                 .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                 .Take(validFilter.PageSize)
