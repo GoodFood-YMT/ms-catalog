@@ -44,11 +44,6 @@ namespace MsCatalog.Controllers
             string cachedProductIngredients = await _redis.GetStringAsync($"product:{productId}:ingredient:all");
             List<ProductsIngredientsDto>? productIngredients = new List<ProductsIngredientsDto>();
 
-            PagedResponse<List<ProductsIngredientsDto>> pagedReponse;
-            int totalRecords = 0;
-            string route = Request.Path.Value!;
-            PaginationFilter validFilter;
-
             if (string.IsNullOrEmpty(cachedProductIngredients))
             {
                 productIngredients = await _context.ProductsIngredients
@@ -64,33 +59,23 @@ namespace MsCatalog.Controllers
 
                 await _redis.SetStringAsync($"product:{productId}:ingredient:all", JsonConvert.SerializeObject(productIngredients));
 
-                totalRecords = productIngredients.Count();
-
-                validFilter = new PaginationFilter(1, totalRecords);
                 productIngredients = productIngredients
-                    .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
-                    .Take(validFilter.PageSize)
                     .ToList();
 
-                pagedReponse = PaginationHelper.CreatePagedReponse(productIngredients, validFilter, totalRecords, _uriService, route);
-                return Ok(pagedReponse);
+                return Ok(new
+                {
+                    data = productIngredients
+                });
             }
 
             productIngredients = JsonConvert.DeserializeObject<List<ProductsIngredientsDto>>(cachedProductIngredients)
                     .Select(p => new ProductsIngredientsDto { ProductId = p.ProductId, IngredientId = p.IngredientId, Quantity = p.Quantity, Name = p.Name })
                     .ToList();
 
-            totalRecords = productIngredients.Count();
-
-            validFilter = new PaginationFilter(1, totalRecords);
-            productIngredients = productIngredients
-                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
-                .Take(validFilter.PageSize)
-                .ToList();
-
-            pagedReponse = PaginationHelper.CreatePagedReponse(productIngredients, validFilter, totalRecords, _uriService, route);
-
-            return Ok(pagedReponse);
+            return Ok(new
+            {
+                data = productIngredients
+            });
         }
 
         [HttpGet("{ingredientId}")]

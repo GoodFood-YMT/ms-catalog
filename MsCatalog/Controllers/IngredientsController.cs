@@ -48,10 +48,6 @@ namespace MsCatalog.Controllers
             string? cachedIngredients = await _redis.GetStringAsync($"restaurant:{RestaurantId}:ingredient:all");
             List<IngredientDto>? ingredients = new List<IngredientDto>();
 
-            PagedResponse<List<IngredientDto>> pagedReponse;
-            int totalRecords = 0;
-            string route = Request.Path.Value!;
-            PaginationFilter validFilter;
             if (string.IsNullOrEmpty(cachedIngredients))
             {
                 
@@ -67,30 +63,25 @@ namespace MsCatalog.Controllers
 
                 ingredients = ingredients.Where(i => i.RestaurantId == RestaurantId).ToList();
 
-                totalRecords = ingredients.Count();
-
-                validFilter = new PaginationFilter(1, totalRecords);
-
                 ingredients
                     .ToList();
 
-                pagedReponse = PaginationHelper.CreatePagedReponse(ingredients, validFilter, totalRecords, _uriService, route);
-                return Ok(pagedReponse);
+                return Ok(new
+                {
+                    data = ingredients
+                });
             }
             ingredients = JsonConvert.DeserializeObject<List<IngredientDto>>(cachedIngredients)
                 .Where(i => i.RestaurantId == RestaurantId)
                 .ToList();
 
-            totalRecords = ingredients!.Count();
-
             ingredients = ingredients
                 .ToList();
 
-            validFilter = new PaginationFilter(1, totalRecords);
-
-            pagedReponse = PaginationHelper.CreatePagedReponse(ingredients!, validFilter, totalRecords, _uriService, route);
-
-            return Ok(pagedReponse);
+            return Ok(new
+            {
+                data = ingredients
+            });
         }
 
         [HttpPost]
